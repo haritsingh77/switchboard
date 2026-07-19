@@ -1,0 +1,64 @@
+.job-form {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 1.75rem;
+  background: #1c1826;
+  border: 1px solid #2e2740;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.job-form-title {
+  color: #c4b5fd;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field label {
+  color: #a39db8;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.field input,
+.field select {
+  padding: 0.6rem 0.75rem;
+  background: #14111d;
+  border: 1px solid #2e2740;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #7c3aed;
+}
+
+.submit-btn {
+  margin-top: 0.5rem;
+  padding: 0.7rem;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover {
+  background: #6d28d9;
+}

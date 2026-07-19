@@ -31,7 +31,7 @@ function App() {
       <div style={{ padding: "1rem" }}>
         <Routes>
           <Route path="/" element={<Overview />} />
-          <Route path="/jobs" element={<JobList />} />
+          <Route path="/jobs" element={<JobList addJob={addJob} />} />
           <Route path="/study" element={<StudyList />} />
         </Routes>
       </div>
