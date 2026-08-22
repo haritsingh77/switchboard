@@ -14,15 +14,16 @@ function App() {
     setJobs((prev) => [...prev, job]);
   }
 
-  function deleteJob(id: number) {
-    setJobs((prev) => prev.filter((t) => t.id !== id));
-  }
   function addStudies(study: Study) {
     setStudies((prev) => [...prev, study]);
   }
 
-  function deleteStudies(id: number) {
+  function deleteStudy(id: number) {
     setStudies((prev) => prev.filter((t) => t.id !== id));
+  }
+
+  function deleteJob(id: number) {
+    setJobs((prev) => prev.filter((t) => t.id != id));
   }
 
   return (
@@ -30,9 +31,26 @@ function App() {
       <Navbar />
       <div style={{ padding: "1rem" }}>
         <Routes>
-          <Route path="/" element={<Overview />} />
-          <Route path="/jobs" element={<JobList addJob={addJob} />} />
-          <Route path="/study" element={<StudyList />} />
+          <Route
+            path="/"
+            element={<Overview jobs={jobs} studies={studies} />}
+          />
+          <Route
+            path="/jobs"
+            element={
+              <JobList addJob={addJob} jobs={jobs} deleteJob={deleteJob} />
+            }
+          />
+          <Route
+            path="/study"
+            element={
+              <StudyList
+                studies={studies}
+                addStudy={addStudies}
+                deleteStudy={deleteStudy}
+              />
+            }
+          />
         </Routes>
       </div>
     </BrowserRouter>

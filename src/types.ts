@@ -11,5 +11,6 @@ export interface Study {
     id: number;
     subject: string;
     duration: number;  //minutes
-    topicsLeft: number
+    topicsLeft: number;
+    status: "not-started" | "in-progress" | "completed";
 }
