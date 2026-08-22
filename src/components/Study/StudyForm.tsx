@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Study } from "../../types";
+import "./StudyForm.css";
 
 interface StudyFormProps {
   addStudy: (study: Study) => void;
@@ -27,9 +28,9 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add Study Material</h2>
-      <div>
+    <form className="study-form" onSubmit={handleSubmit}>
+      <h2 className="study-form-title">Add Study Material</h2>
+      <div className="field">
         <label>Subject</label>
         <input
           type="text"
@@ -38,7 +39,7 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
           onChange={(e) => setSubject(e.target.value)}
         />
       </div>
-      <div>
+      <div className="field">
         <label>Duration</label>
         <input
           type="number"
@@ -47,7 +48,7 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
           onChange={(e) => setDuration(Number(e.target.value))}
         />
       </div>
-      <div>
+      <div className="field">
         <label>Topics Left</label>
         <input
           type="number"
@@ -56,7 +57,7 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
           onChange={(e) => setTopicsLeft(Number(e.target.value))}
         />
       </div>
-      <div>
+      <div className="field">
         <label>Status</label>
         <select
           value={status}
@@ -67,7 +68,9 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
           <option value="completed">Completed</option>
         </select>
       </div>
-      <button type="submit">Add Study</button>
+      <button className="submit-btn" type="submit">
+        Add Study
+      </button>
     </form>
   );
 }
