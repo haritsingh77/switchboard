@@ -37,7 +37,7 @@ async function createJob(req, res, next) {
 
 async function updateJob(req, res, next) {
   try {
-    const job = await Job.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, req.body, { new: true });
+    const job = await Job.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, req.body, { new: true, runValidators: true });
     if (!job) return res.status(404).json({ message: "Record not found" });
     res.status(200).json(job);
   } catch (err) {
