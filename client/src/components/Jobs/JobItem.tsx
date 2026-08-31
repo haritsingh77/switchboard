@@ -3,7 +3,7 @@ import "./JobItem.css";
 
 interface JobItemProps {
   job: Job;
-  deleteJob: (id: number) => void;
+  deleteJob: (id: string) => void;
 }
 
 export default function JobItem({ job, deleteJob }: JobItemProps) {
@@ -28,7 +28,7 @@ export default function JobItem({ job, deleteJob }: JobItemProps) {
         <strong>City</strong>
         <span>{job.city}</span>
       </div>
-      <button className="delete-btn" onClick={() => deleteJob(job.id)}>
+      <button className="delete-btn" onClick={() => deleteJob(job._id)}>
         Delete
       </button>
     </div>

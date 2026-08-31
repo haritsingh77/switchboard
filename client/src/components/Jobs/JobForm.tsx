@@ -16,7 +16,7 @@ export default function JobForm({ addJob }: JobFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addJob({
-      id: Date.now(),
+      _id: crypto.randomUUID(),
       title,
       appliedDate,
       status,

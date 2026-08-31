@@ -1,5 +1,5 @@
 export interface Job {
-    id: number;
+    _id: string;
     title: string;
     appliedDate: string;
     status: "applied" | "interviewing" | "offer" | "rejected";
@@ -13,4 +13,9 @@ export interface Study {
     duration: number;  //minutes
     topicsLeft: number;
     status: "not-started" | "in-progress" | "completed";
+}
+
+export interface LoginCredentials {
+    email: string;
+    password: string;
 }

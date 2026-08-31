@@ -5,7 +5,7 @@ const jobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   status: { type: String, required: true },
   city: { type: String, default: null },
-  appliedData: { type: String },
+  appliedDate: { type: String },
   package: { type: Number },
 });
 

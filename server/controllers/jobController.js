@@ -23,11 +23,11 @@ async function getJobById(req, res, next) {
 
 async function createJob(req, res, next) {
   try {
-    const { title, status, city } = req.body;
+    const { title, status, city, appliedDate, package: packageAmount } = req.body;
     if (!title || !status) {
       return res.status(400).json({ error: "title and status are required" });
     }
-    const job = new Job({ title, status, city, userId: req.userId });
+    const job = new Job({ title, status, city, appliedDate, package: packageAmount, userId: req.userId });
     await job.save();
     res.status(201).json(job);
   } catch (err) {

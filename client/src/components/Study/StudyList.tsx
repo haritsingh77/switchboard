@@ -13,7 +13,7 @@ function StudyList({ studies, addStudy, deleteStudy }: StudyListProps) {
     <div>
       <StudyForm addStudy={addStudy} />
       {studies.map((study) => (
-        <StudyItem key={study.id} study={study} onDelete={deleteStudy} />
+        <StudyItem key={study.id} study={study} deleteStudy={deleteStudy} />
       ))}
     </div>
   );

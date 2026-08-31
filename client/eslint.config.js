@@ -18,5 +18,9 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Allow non-component exports (e.g. hooks/constants) to be co-located with components.
+      'react-refresh/only-export-components': 'off',
+    },
   },
 ])
