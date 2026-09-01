@@ -1,0 +1,101 @@
+.job-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: start;
+}
+
+.job-column {
+  background: #16131f;
+  border: 1px solid #2a2438;
+  border-radius: 12px;
+  padding: 1rem 0.85rem;
+  min-height: 200px;
+  font-family: system-ui, sans-serif;
+}
+
+.job-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #2a2438;
+}
+
+.job-column-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c4b5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.job-column-count {
+  font-size: 0.75rem;
+  color: #8b849e;
+  background: #221d30;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.job-column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.job-column-empty {
+  color: #6b6580;
+  font-size: 0.78rem;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-style: italic;
+}
+
+/* card — override the wider JobItem styles */
+.job-board .job-item {
+  padding: 0.85rem;
+  margin-bottom: 0;
+}
+
+.job-board .job-item-title {
+  font-size: 0.92rem;
+  margin-bottom: 0.5rem;
+}
+
+.job-board .job-item-row {
+  font-size: 0.78rem;
+  padding: 0.15rem 0;
+}
+
+.job-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+}
+
+.job-card-status {
+  flex: 1;
+  padding: 0.35rem 0.4rem;
+  background: #14111d;
+  border: 1px solid #2e2740;
+  border-radius: 6px;
+  color: #e9e4f5;
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.job-card-status:focus {
+  border-color: #7c3aed;
+}
+
+.job-board .delete-btn {
+  margin-top: 0;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+}

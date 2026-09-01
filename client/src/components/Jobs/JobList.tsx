@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { Job } from "../../types";
 import { apiFetch } from "../../api";
 import JobForm from "./JobForm";
-import JobItem from "./JobItem";
+import JobBoard from "./JobBoard";
 
 function JobList() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -44,15 +44,25 @@ function JobList() {
     }
   }
 
+  async function updateJobStatus(id: string, status: Job["status"]) {
+    try {
+      const updated = await apiFetch(`/jobs/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      setJobs((prev) => prev.map((job) => (job._id === id ? updated : job)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update job");
+    }
+  }
+
   if (loading) return <p>Loading jobs...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <div>
       <JobForm addJob={addJob} />
-      {jobs.map((job) => (
-        <JobItem key={job._id} job={job} deleteJob={deleteJob} />
-      ))}
+      <JobBoard jobs={jobs} deleteJob={deleteJob} updateJobStatus={updateJobStatus} />
     </div>
   );
 }
