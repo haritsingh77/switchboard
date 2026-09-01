@@ -1,0 +1,78 @@
+/* Sidebar.css */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #16131f;
+  border-right: 1px solid #2a2438;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, sans-serif;
+}
+
+.sidebar-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  padding: 0 0.75rem 1.5rem;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-link {
+  padding: 0.7rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #a39db8;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+}
+
+.sidebar-link:hover {
+  color: #e9e4f5;
+  background: #221d30;
+}
+
+.sidebar-link.active {
+  color: #fff;
+  background: #7c3aed;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 0 0.75rem;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 0.6rem;
+  background: transparent;
+  border: 1px solid #2e2740;
+  border-radius: 8px;
+  color: #a39db8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  border-color: #7c3aed;
+  color: #c4b5fd;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}

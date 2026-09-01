@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import Navbar from "../common/Navbar";
+import Sidebar from "../common/Sidebar";
 
 export default function MainLayout() {
   const { isAuthenticated } = useAuth();
@@ -10,11 +10,11 @@ export default function MainLayout() {
   }
 
   return (
-    <>
-      <Navbar />
-      <div style={{ padding: "1rem" }}>
+    <div className="app-shell">
+      <Sidebar />
+      <main className="main-content">
         <Outlet />
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
