@@ -3,7 +3,7 @@ import type { Study } from "../../types";
 import "./StudyForm.css";
 
 interface StudyFormProps {
-  addStudy: (study: Study) => void;
+  addStudy: (study: Omit<Study, "_id">) => void;
 }
 
 export default function StudyForm({ addStudy }: StudyFormProps) {
@@ -15,7 +15,6 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addStudy({
-      id: Date.now(),
       subject,
       duration,
       topicsLeft,
@@ -50,19 +49,11 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
       </div>
       <div className="field">
         <label>Topics Left</label>
-        <input
-          type="number"
-          min="0"
-          value={topicsLeft}
-          onChange={(e) => setTopicsLeft(Number(e.target.value))}
-        />
+        <input type="number" min="0" value={topicsLeft} onChange={(e) => setTopicsLeft(Number(e.target.value))} />
       </div>
       <div className="field">
         <label>Status</label>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as Study["status"])}
-        >
+        <select value={status} onChange={(e) => setStatus(e.target.value as Study["status"])}>
           <option value="not-started">Not Started</option>
           <option value="in-progress">In progress</option>
           <option value="completed">Completed</option>

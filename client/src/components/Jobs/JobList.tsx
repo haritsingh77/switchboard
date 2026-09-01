@@ -23,12 +23,25 @@ function JobList() {
     loadJobs();
   }, []);
 
-  function addJob(job: Job) {
-    setJobs((prev) => [...prev, job]);
+  async function addJob(jobData: Omit<Job, "_id">) {
+    try {
+      const created = await apiFetch("/jobs", {
+        method: "POST",
+        body: JSON.stringify(jobData),
+      });
+      setJobs((prev) => [...prev, created]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add job");
+    }
   }
 
-  function deleteJob(id: string) {
-    setJobs((prev) => prev.filter((job) => job._id !== id));
+  async function deleteJob(id: string) {
+    try {
+      await apiFetch(`/jobs/${id}`, { method: "DELETE" });
+      setJobs((prev) => prev.filter((job) => job._id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete job");
+    }
   }
 
   if (loading) return <p>Loading jobs...</p>;

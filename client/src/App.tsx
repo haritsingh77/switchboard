@@ -9,15 +9,7 @@ import StudyList from "./components/Study/StudyList";
 
 function App() {
   const [jobs] = useState<Job[]>([]);
-  const [studies, setStudies] = useState<Study[]>([]);
-
-  function addStudies(study: Study) {
-    setStudies((prev) => [...prev, study]);
-  }
-
-  function deleteStudy(id: number) {
-    setStudies((prev) => prev.filter((t) => t.id !== id));
-  }
+  const [studies] = useState<Study[]>([]);
 
   return (
     <BrowserRouter>
@@ -26,10 +18,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Overview jobs={jobs} studies={studies} />} />
           <Route path="/jobs" element={<JobList />} />
-          <Route
-            path="/study"
-            element={<StudyList studies={studies} addStudy={addStudies} deleteStudy={deleteStudy} />}
-          />
+          <Route path="/study" element={<StudyList />} />
         </Route>
       </Routes>
     </BrowserRouter>

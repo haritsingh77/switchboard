@@ -8,7 +8,7 @@ export interface Job {
 }
 
 export interface Study {
-    id: number;
+    _id: string;
     subject: string;
     duration: number;  //minutes
     topicsLeft: number;

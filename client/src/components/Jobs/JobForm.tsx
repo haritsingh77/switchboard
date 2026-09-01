@@ -3,7 +3,7 @@ import type { Job } from "../../types";
 import "./JobForm.css";
 
 interface JobFormProps {
-  addJob: (job: Job) => void;
+  addJob: (job: Omit<Job, "_id">) => void;
 }
 
 export default function JobForm({ addJob }: JobFormProps) {
@@ -16,7 +16,6 @@ export default function JobForm({ addJob }: JobFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addJob({
-      _id: crypto.randomUUID(),
       title,
       appliedDate,
       status,
@@ -48,20 +47,13 @@ export default function JobForm({ addJob }: JobFormProps) {
       {/*Applied Date*/}
       <div className="field">
         <label>Applied Date</label>
-        <input
-          type="date"
-          value={appliedDate}
-          onChange={(e) => setAppliedDate(e.target.value)}
-        />
+        <input type="date" value={appliedDate} onChange={(e) => setAppliedDate(e.target.value)} />
       </div>
 
       {/*Status*/}
       <div className="field">
         <label>Status</label>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as Job["status"])}
-        >
+        <select value={status} onChange={(e) => setStatus(e.target.value as Job["status"])}>
           <option value="applied">Applied</option>
           <option value="interviewing">Interviewing</option>
           <option value="offer">Offer</option>
@@ -72,22 +64,13 @@ export default function JobForm({ addJob }: JobFormProps) {
       {/*Package Amount*/}
       <div className="field">
         <label>Package (LPA)</label>
-        <input
-          type="number"
-          value={packageAmount}
-          onChange={(e) => setPackageAmount(Number(e.target.value))}
-        />
+        <input type="number" value={packageAmount} onChange={(e) => setPackageAmount(Number(e.target.value))} />
       </div>
 
       {/*City*/}
       <div className="field">
         <label>City</label>
-        <input
-          type="text"
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
+        <input type="text" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
       </div>
 
       <button type="submit" className="submit-btn">
