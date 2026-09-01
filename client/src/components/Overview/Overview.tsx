@@ -1,26 +1,45 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { apiFetch } from "../../api";
 import type { Job, Study } from "../../types";
 import "./Overview.css";
 
-interface OverviewProps {
-  jobs: Job[];
-  studies: Study[];
-}
-function Overview({ jobs, studies }: OverviewProps) {
+function Overview() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [subject, setSubject] = useState<Study[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [jobsData, studiesData] = await Promise.all([
+          apiFetch("/jobs"),
+          apiFetch("/study"),
+        ]);
+        setJobs(jobsData);
+        setSubject(studiesData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load overview");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const summary = useMemo(() => {
     return {
       totalJobs: jobs.length,
-      interviewCount: jobs.filter((job) => job.status === "interviewing")
-        .length,
-      totalSubjects: studies.length,
-      inProgressCount: studies.filter((study) => study.status === "in-progress")
-        .length,
-      lessHoursSubjects: studies.filter((study) => study.duration < 60).length,
-      leftToStartSubjects: studies.filter(
-        (study) => study.status === "not-started",
-      ).length,
+      interviewCount: jobs.filter((job) => job.status === "interviewing").length,
+      totalSubjects: subject.length,
+      inProgressCount: subject.filter((study) => study.status === "in-progress").length,
+      lessHoursSubjects: subject.filter((study) => study.duration < 60).length,
+      leftToStartSubjects: subject.filter((study) => study.status === "not-started").length,
     };
-  }, [jobs, studies]);
+  }, [jobs, subject]);
+
+  if (loading) return <p>Loading overview...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="overview">
