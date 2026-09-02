@@ -12,7 +12,7 @@ export default function JobColumn({ title, jobs, deleteJob, updateJobStatus }: J
   return (
     <div className="job-column">
       <div className="job-column-header">
-        <h3 className="job-column-title">{title}</h3>
+        <h3 className={`job-column-title ${title.toLowerCase()}`}>{title}</h3>
         <span className="job-column-count">{jobs.length}</span>
       </div>
       <div className="job-column-body">

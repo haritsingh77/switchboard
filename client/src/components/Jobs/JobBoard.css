@@ -26,12 +26,19 @@
 
 .job-column-title {
   margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #c4b5fd;
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+.job-column-title.applied { background: #2d2a4a; color: #a5b4fc; }
+.job-column-title.interviewing { background: #4a3a1a; color: #fbbf24; }
+.job-column-title.offer { background: #1a4a2e; color: #4ade80; }
+.job-column-title.rejected { background: #4a1a1a; color: #f87171; }
 
 .job-column-count {
   font-size: 0.75rem;

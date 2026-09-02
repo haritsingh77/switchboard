@@ -37,19 +37,6 @@
   font-weight: 600;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-.status-applied { background: #2d2a4a; color: #a5b4fc; }
-.status-interviewing { background: #4a3a1a; color: #fbbf24; }
-.status-offer { background: #1a4a2e; color: #4ade80; }
-.status-rejected { background: #4a1a1a; color: #f87171; }
-
 .delete-btn {
   margin-top: 0.7rem;
   padding: 0.4rem 0.9rem;
