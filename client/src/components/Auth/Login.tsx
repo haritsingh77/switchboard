@@ -2,6 +2,7 @@ import { useState } from "react";
 import { apiFetch } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import "./Login.css";
 
 
 export default function LoginForm() {
@@ -31,20 +32,35 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      <div>
-        <label>Email</label>
-        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}></input>
-      </div>
-      <div>
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}></input>
-      </div>
-      <button type="submit" disabled={loading}>
-        Login
-      </button>
-      {error && <p>{error}</p>}
-    </form>
+    <div className="login-page">
+      <form className="login-card" onSubmit={handleSubmit}>
+        <h1 className="login-brand">⚡ Switchboard</h1>
+        <p className="login-subtitle">Sign in to your account</p>
+        <div className="login-field">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            placeholder="you@example.com"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="login-field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            placeholder="••••••••"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button className="login-btn" type="submit" disabled={loading}>
+          {loading ? "Signing in..." : "Login"}
+        </button>
+        {error && <p className="login-error">{error}</p>}
+      </form>
+    </div>
   );
 }
