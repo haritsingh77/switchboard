@@ -13,7 +13,7 @@ mongoose
   .catch((err) => console.log("MongoDB connection error:", err.message));
 
 const cors = require("cors");
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: ["http://localhost:5173" , "http://localhost:8080"] }));
 
 app.use("/jobs", jobRoutes);
 app.use("/auth", authRoutes);
