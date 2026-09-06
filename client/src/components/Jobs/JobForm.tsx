@@ -8,6 +8,7 @@ interface JobFormProps {
 
 export default function JobForm({ addJob }: JobFormProps) {
   const [title, setTitle] = useState("");
+  const [company, setCompany] = useState("");
   const [appliedDate, setAppliedDate] = useState("");
   const [status, setStatus] = useState<Job["status"]>("applied");
   const [packageAmount, setPackageAmount] = useState(0);
@@ -17,12 +18,14 @@ export default function JobForm({ addJob }: JobFormProps) {
     e.preventDefault();
     addJob({
       title,
+      company,
       appliedDate,
       status,
       package: Number(packageAmount),
       city,
     });
     setTitle("");
+    setCompany("");
     setAppliedDate("");
     setStatus("applied");
     setPackageAmount(0);
@@ -41,6 +44,17 @@ export default function JobForm({ addJob }: JobFormProps) {
           placeholder="e.g. Frontend Developer"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
+
+      {/*Company*/}
+      <div className="field">
+        <label>Company</label>
+        <input
+          type="text"
+          placeholder="e.g. Acme Corp"
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
         />
       </div>
 

@@ -13,6 +13,12 @@ export default function JobCard({ job, deleteJob, updateJobStatus }: JobCardProp
   return (
     <div className="job-item">
       <h3 className="job-item-title">{job.title}</h3>
+      {job.company && (
+        <div className="job-item-row">
+          <strong>Company</strong>
+          <span>{job.company}</span>
+        </div>
+      )}
       {job.appliedDate && (
         <div className="job-item-row">
           <strong>Applied Date</strong>
