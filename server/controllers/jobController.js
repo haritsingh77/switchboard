@@ -23,11 +23,11 @@ async function getJobById(req, res, next) {
 
 async function createJob(req, res, next) {
   try {
-    const { title, status, city, appliedDate, package: packageAmount } = req.body;
-    if (!title || !status) {
-      return res.status(400).json({ error: "title and status are required" });
+    const { title, company, status, city, appliedDate, package: packageAmount } = req.body;
+    if (!title || !company || !status) {
+      return res.status(400).json({ error: "title, company and status are required" });
     }
-    const job = new Job({ title, status, city, appliedDate, package: packageAmount, userId: req.userId });
+    const job = new Job({ title, company, status, city, appliedDate, package: packageAmount, userId: req.userId });
     await job.save();
     res.status(201).json(job);
   } catch (err) {
@@ -37,7 +37,12 @@ async function createJob(req, res, next) {
 
 async function updateJob(req, res, next) {
   try {
-    const job = await Job.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, req.body, { new: true, runValidators: true });
+    const allowed = ["title", "company", "status", "city", "appliedDate", "package", "discussionNotes", "skillsGap", "needsTailoredResume"];
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+    const job = await Job.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, updates, { new: true, runValidators: true });
     if (!job) return res.status(404).json({ message: "Record not found" });
     res.status(200).json(job);
   } catch (err) {

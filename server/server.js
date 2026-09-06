@@ -6,6 +6,13 @@ const mongoose = require("mongoose");
 const jobRoutes = require("./routes/jobRoutes");
 const authRoutes = require("./routes/authRoutes");
 const studyRoutes = require("./routes/studyRoutes");
+const roadmapRoutes = require("./routes/roadmapRoutes");
+const phaseRoutes = require("./routes/phaseRoutes");
+const topicRoutes = require("./routes/topicRoutes");
+const sessionRoutes = require("./routes/sessionRoutes");
+const mockRoutes = require("./routes/mockRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 const errorHandler = require("./middleware/errorHandler");
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -24,6 +31,13 @@ app.use(cors({
 app.use("/jobs", jobRoutes);
 app.use("/auth", authRoutes);
 app.use("/study", studyRoutes);
+app.use("/roadmaps", roadmapRoutes);
+app.use("/phases", phaseRoutes);
+app.use("/topics", topicRoutes);
+app.use("/sessions", sessionRoutes);
+app.use("/mocks", mockRoutes);
+app.use("/reviews", reviewRoutes);
+app.use("/dashboard", dashboardRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
