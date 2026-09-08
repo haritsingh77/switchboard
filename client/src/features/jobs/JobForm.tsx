@@ -4,9 +4,10 @@ import "./JobForm.css";
 
 interface JobFormProps {
   addJob: (job: Omit<Job, "_id">) => void;
+  onDone?: () => void;
 }
 
-export default function JobForm({ addJob }: JobFormProps) {
+export default function JobForm({ addJob, onDone }: JobFormProps) {
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
   const [appliedDate, setAppliedDate] = useState("");
@@ -30,6 +31,7 @@ export default function JobForm({ addJob }: JobFormProps) {
     setStatus("applied");
     setPackageAmount(0);
     setCity("");
+    onDone?.();
   };
 
   return (

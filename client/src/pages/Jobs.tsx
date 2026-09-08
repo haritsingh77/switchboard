@@ -3,10 +3,14 @@ import type { Job } from "../types";
 import { apiFetch } from "../api";
 import JobForm from "../features/jobs/JobForm";
 import JobBoard from "../features/jobs/JobBoard";
+import Modal from "../components/Modal";
+import "./Job.css";
+
 function Jobs() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     async function loadJobs() {
@@ -59,8 +63,16 @@ function Jobs() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <JobForm addJob={addJob} />
+    <div className="jobs-page">
+      <div className="jobs-header">
+        <h1>Job Applications</h1>
+        <button className="add-btn" onClick={() => setShowAddModal(true)}>
+          + Add Job
+        </button>
+      </div>
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add Job">
+        <JobForm addJob={addJob} onDone={() => setShowAddModal(false)} />
+      </Modal>
       <JobBoard jobs={jobs} deleteJob={deleteJob} updateJobStatus={updateJobStatus} />
     </div>
   );

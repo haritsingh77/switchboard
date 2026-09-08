@@ -9,6 +9,12 @@ interface JobCardProps {
 
 const STATUSES: Job["status"][] = ["applied", "interviewing", "offer", "rejected"];
 
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 export default function JobCard({ job, deleteJob, updateJobStatus }: JobCardProps) {
   return (
     <div className="job-item">
@@ -22,7 +28,7 @@ export default function JobCard({ job, deleteJob, updateJobStatus }: JobCardProp
       {job.appliedDate && (
         <div className="job-item-row">
           <strong>Applied Date</strong>
-          <span>{job.appliedDate}</span>
+          <span>{formatDate(job.appliedDate)}</span>
         </div>
       )}
       {job.package != null && (
