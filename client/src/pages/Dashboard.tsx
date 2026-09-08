@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { apiFetch } from "../../api";
-import type { Job, Study } from "../../types";
-import "./Overview.css";
+import { apiFetch } from "../api";
+import type { Job, Study } from "../types";
+import "./Dashboard.css";
 
-function Overview() {
+function Dashboard() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [subject, setSubject] = useState<Study[]>([]);
   const [error, setError] = useState("");
@@ -80,4 +80,4 @@ function Overview() {
   );
 }
 
-export default Overview;
+export default Dashboard;

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { apiFetch } from "../../api";
-import type { Study } from "../../types";
-import StudyForm from "./StudyForm";
-import StudyItem from "./StudyItem";
+import { apiFetch } from "../api";
+import type { Study } from "../types";
+import StudyForm from "../features/study/StudyForm";
+import StudyItem from "../features/study/StudyItem";
 
 function StudyList() {
   const [subjects, setSubject] = useState<Study[]>([]);

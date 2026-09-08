@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import type { Job } from "../../types";
-import { apiFetch } from "../../api";
-import JobForm from "./JobForm";
-import JobBoard from "./JobBoard";
-
-function JobList() {
+import type { Job } from "../types";
+import { apiFetch } from "../api";
+import JobForm from "../features/jobs/JobForm";
+import JobBoard from "../features/jobs/JobBoard";
+function Jobs() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,4 +66,4 @@ function JobList() {
   );
 }
 
-export default JobList;
+export default Jobs;

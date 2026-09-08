@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LoginForm from "./components/Auth/Login";
-import MainLayout from "./components/layout/MainLayout";
-import Overview from "./components/Overview/Overview";
-import JobList from "./components/Jobs/JobList";
-import StudyList from "./components/Study/StudyList";
+import LoginForm from "./pages/Login";
+import MainLayout from "./components/MainLayout";
+import Dashboard from "./pages/Dashboard";
+import Jobs from "./pages/Jobs";
+import StudyList from "./pages/Study";
 
 function App() {
   return (
@@ -11,8 +11,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Overview />} />
-          <Route path="/jobs" element={<JobList />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/jobs" element={<Jobs />} />
           <Route path="/study" element={<StudyList />} />
         </Route>
       </Routes>
