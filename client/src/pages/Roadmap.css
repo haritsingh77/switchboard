@@ -1,0 +1,207 @@
+.roadmap-page {
+  font-family: system-ui, sans-serif;
+  color: #e9e4f5;
+}
+
+.roadmap-msg {
+  color: #a39db8;
+}
+
+.roadmap-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.roadmap-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.roadmap-subtitle {
+  margin: 0.35rem 0 0;
+  color: #8b849e;
+  font-size: 0.9rem;
+}
+
+.roadmap-add-btn {
+  padding: 0.6rem 1.1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.roadmap-add-btn:hover {
+  background: #6d28d9;
+}
+
+.roadmap-card {
+  background: #17131f;
+  border: 1px solid #2a2438;
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.roadmap-overall {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #2a2438;
+}
+
+.roadmap-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.roadmap-ring span {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #17131f;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c4b5fd;
+}
+
+.roadmap-overall-label {
+  margin: 0;
+  color: #8b849e;
+  font-size: 0.85rem;
+}
+
+.roadmap-overall-weeks {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.phase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.phase-row {
+  background: #1c1826;
+  border: 1px solid #2a2438;
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.phase-row:hover {
+  border-color: #3a3450;
+}
+
+.phase-row-current {
+  border-color: #7c3aed;
+}
+
+.phase-row-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.phase-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.phase-badge-done {
+  background: #1a4a2e;
+  color: #4ade80;
+}
+
+.phase-badge-current {
+  background: #2d2a4a;
+  color: #c4b5fd;
+}
+
+.phase-badge-upcoming {
+  background: #221d30;
+  color: #8b849e;
+}
+
+.phase-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.phase-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.phase-dates {
+  color: #8b849e;
+  font-size: 0.78rem;
+}
+
+.phase-pct {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #c4b5fd;
+}
+
+.phase-chevron {
+  color: #8b849e;
+  font-size: 0.8rem;
+}
+
+.phase-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid #2a2438;
+}
+
+.phase-topics-empty {
+  color: #6b6580;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.phase-topic {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: #221d30;
+  color: #a39db8;
+}
+
+.phase-topic-completed {
+  background: #1a4a2e;
+  color: #4ade80;
+}
+
+.phase-topic-scheduled {
+  background: #2d2a4a;
+  color: #a5b4fc;
+}
