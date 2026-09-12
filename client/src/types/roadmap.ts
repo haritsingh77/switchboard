@@ -18,6 +18,19 @@ export interface Phase {
     order?: number;
 }
 
+export type RevisionOutcome = "knew" | "kinda" | "forgot";
+
+export interface TopicReview {
+    date: string;
+    outcome: RevisionOutcome;
+}
+
+export interface TopicResource {
+    _id?: string;
+    label?: string;
+    url?: string;
+}
+
 export interface Topic {
     _id: string;
     roadmapId?: string;
@@ -27,6 +40,8 @@ export interface Topic {
     totalMinutes: number;
     lastStudiedAt?: string;
     revisionCount: number;
+    reviews?: TopicReview[];
+    resources?: TopicResource[];
 }
 
 export interface SessionTopic {

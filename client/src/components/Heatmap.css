@@ -1,0 +1,66 @@
+.heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.heatmap-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.heatmap-cell {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: #221d30;
+  flex-shrink: 0;
+}
+
+.heatmap-l0 {
+  background: #221d30;
+}
+.heatmap-l1 {
+  background: #4c2d8f;
+}
+.heatmap-l2 {
+  background: #6d28d9;
+}
+.heatmap-l3 {
+  background: #8b5cf6;
+}
+.heatmap-l4 {
+  background: #a78bfa;
+}
+.heatmap-l-future {
+  background: transparent;
+}
+
+.heatmap-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.76rem;
+  color: #8b849e;
+  flex-wrap: wrap;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.heatmap-legend .heatmap-cell {
+  width: 11px;
+  height: 11px;
+}

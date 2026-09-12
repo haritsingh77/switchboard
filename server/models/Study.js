@@ -6,5 +6,6 @@ const studySchema = new mongoose.Schema({
   duration: { type: Number, required: true },
   topicsLeft: { type: Number, required: true },
   status: { type: String, enum: ["not-started", "in-progress", "completed"], default: "not-started" },
+  deletedAt: { type: Date, default: null },
 });
 module.exports = mongoose.model("Study", studySchema);

@@ -12,6 +12,29 @@ const jobSchema = new mongoose.Schema(
     discussionNotes: { type: String },
     skillsGap: { type: [String] },
     needsTailoredResume: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    // Reason an application was rejected (a tag), for spotting patterns over time.
+    rejectionReason: {
+      type: String,
+      enum: ["culture", "experience", "skill-gap", "compensation", "location", "ghosted", "other", null],
+      default: null,
+    },
+    // Roadmap topics relevant to this role ("studied X for company Y").
+    relevantTopicIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Topic" }],
+    // Interview pipeline within a single application.
+    rounds: [
+      {
+        type: {
+          type: String,
+          enum: ["phone", "coding", "system-design", "behavioral", "hr", "onsite", "take-home", "other"],
+          default: "other",
+        },
+        date: { type: Date },
+        outcome: { type: String, enum: ["pending", "passed", "failed", "cancelled"], default: "pending" },
+        notes: { type: String },
+        score: { type: Number },
+      },
+    ],
     statusHistory: [
       {
         status: { type: String },

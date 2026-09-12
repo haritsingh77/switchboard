@@ -45,11 +45,11 @@ async function getFullMocks(req, res, next) {
 
 async function createFullMock(req, res, next) {
   try {
-    const { date, scores, notes } = req.body;
+    const { date, scores, notes, feedback, topicIds } = req.body;
     if (!date) {
       return res.status(400).json({ error: "date is required" });
     }
-    const fullMock = new FullMock({ date, scores, notes, userId: req.userId });
+    const fullMock = new FullMock({ date, scores, notes, feedback, topicIds, userId: req.userId });
     await fullMock.save();
     res.status(201).json(fullMock);
   } catch (err) {

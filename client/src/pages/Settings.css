@@ -1,0 +1,125 @@
+.settings {
+  font-family: system-ui, sans-serif;
+  color: #e9e4f5;
+  max-width: 720px;
+}
+
+.settings-msg {
+  color: #a39db8;
+}
+
+.settings-header {
+  margin-bottom: 1.25rem;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.settings-subtitle {
+  margin: 0.35rem 0 0;
+  color: #8b849e;
+  font-size: 0.9rem;
+}
+
+.settings-card {
+  background: #16131f;
+  border: 1px solid #2a2438;
+  border-radius: 12px;
+  padding: 1.25rem 1.35rem;
+}
+
+.settings-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.settings-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.settings-card-sub {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  color: #8b849e;
+}
+
+.settings-primary {
+  flex-shrink: 0;
+  padding: 0.55rem 1.1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.settings-primary:hover {
+  background: #6d28d9;
+}
+
+.export-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.export-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid #221d30;
+}
+
+.export-row:first-child {
+  border-top: none;
+}
+
+.export-name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.export-count {
+  font-size: 0.8rem;
+  color: #8b849e;
+  min-width: 2ch;
+  text-align: right;
+}
+
+.export-csv-btn {
+  padding: 0.35rem 0.85rem;
+  background: #17131f;
+  border: 1px solid #2a2438;
+  border-radius: 7px;
+  color: #c4b5fd;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.export-csv-btn:hover:not(:disabled) {
+  border-color: #7c3aed;
+}
+
+.export-csv-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 520px) {
+  .settings-card-head {
+    flex-direction: column;
+  }
+}

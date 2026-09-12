@@ -1,0 +1,249 @@
+.study {
+  font-family: system-ui, sans-serif;
+  color: #e9e4f5;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 960px;
+}
+
+.study-msg {
+  color: #a39db8;
+}
+
+.study-error {
+  margin: 0;
+  color: #f87171;
+  font-size: 0.85rem;
+}
+
+.study-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.study-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.study-subtitle {
+  margin: 0.35rem 0 0;
+  color: #8b849e;
+  font-size: 0.9rem;
+}
+
+.study-add-btn {
+  flex-shrink: 0;
+  padding: 0.55rem 1.1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.study-add-btn:hover {
+  background: #6d28d9;
+}
+
+.study-empty {
+  margin: 0;
+  color: #6b6480;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.study-card {
+  background: #16131f;
+  border: 1px solid #2a2438;
+  border-radius: 12px;
+  padding: 1.25rem 1.35rem;
+}
+
+.study-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.study-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.study-legend {
+  display: flex;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #a39db8;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.legend-effort {
+  background: #7c3aed;
+}
+
+.legend-progress {
+  background: #4ade80;
+}
+
+/* Effort chart */
+.effort-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.effort-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.effort-name {
+  font-size: 0.85rem;
+  color: #e9e4f5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.effort-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.effort-bar-track {
+  position: relative;
+  height: 16px;
+  background: #14111d;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.effort-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.effort-bar-effort {
+  background: #7c3aed;
+}
+
+.effort-bar-progress {
+  background: #4ade80;
+}
+
+.effort-bar-val {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #e9e4f5;
+}
+
+/* Subject cards */
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.subject-card {
+  padding: 0.9rem 1rem;
+  background: #14111d;
+  border: 1px solid #2a2438;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.subject-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.subject-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.subject-remove {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: #6b6480;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.subject-remove:hover {
+  color: #f87171;
+}
+
+.subject-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: #8b849e;
+}
+
+.subject-status {
+  align-self: flex-start;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.subject-status-not-started {
+  background: #4a1a1a;
+  color: #f87171;
+}
+.subject-status-in-progress {
+  background: #4a3a1a;
+  color: #fbbf24;
+}
+.subject-status-completed {
+  background: #1a4a2e;
+  color: #4ade80;
+}
+
+@media (max-width: 560px) {
+  .effort-row {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+}

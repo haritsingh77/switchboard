@@ -1,10 +1,4 @@
 .job-form {
-  max-width: 480px;
-  margin: 2rem auto;
-  padding: 1.75rem;
-  background: #1c1826;
-  border: 1px solid #2e2740;
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -17,10 +11,43 @@
   margin: 0 0 0.5rem;
 }
 
+.field-row {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.field-row .field {
+  flex: 1;
+  min-width: 0;
+}
+
 .field {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.job-form-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  color: #a39db8;
+  font-size: 0.9rem;
+}
+
+.job-form-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .field-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
 
 .field label {

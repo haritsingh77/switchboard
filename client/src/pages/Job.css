@@ -1,11 +1,40 @@
+.jobs-page {
+  font-family: system-ui, sans-serif;
+  color: #e9e4f5;
+}
+
 .jobs-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.jobs-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.jobs-subtitle {
+  margin: 0.35rem 0 0;
+  color: #8b849e;
+  font-size: 0.9rem;
+}
+
+.jobs-msg {
+  color: #a39db8;
+}
+
+.jobs-error {
+  margin: 0 0 1rem;
+  color: #f87171;
+  font-size: 0.85rem;
 }
 
 .add-btn {
+  flex-shrink: 0;
   padding: 0.6rem 1.2rem;
   background: #7c3aed;
   border: none;
@@ -19,4 +48,11 @@
 
 .add-btn:hover {
   background: #6d28d9;
+}
+
+.jobs-funnel-card {
+  background: #16131f;
+  border: 1px solid #2a2438;
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
 }

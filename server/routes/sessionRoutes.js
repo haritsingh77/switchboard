@@ -7,12 +7,14 @@ const {
   completeSession,
   updateSession,
   deleteSession,
+  addTopicToSession,
 } = require("../controllers/sessionController");
 
 router.use(requireAuth);
 router.get("/", getSessions);
 router.post("/bulk", createSessionsBulk);
 router.patch("/:id/complete", completeSession);
+router.patch("/:id/add-topic", addTopicToSession);
 router.patch("/:id", updateSession);
 router.delete("/:id", deleteSession);
 

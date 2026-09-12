@@ -30,6 +30,9 @@
 }
 
 .sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
   padding: 0.7rem 0.75rem;
   border-radius: 8px;
   text-decoration: none;
@@ -37,6 +40,11 @@
   font-weight: 500;
   font-size: 0.95rem;
   transition: all 0.15s ease;
+}
+
+.sidebar-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
 .sidebar-link:hover {
@@ -55,6 +63,10 @@
 }
 
 .logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
   padding: 0.6rem;
   background: transparent;

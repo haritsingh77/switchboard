@@ -1,30 +1,26 @@
 .study-form {
-  max-width: 480px;
-  margin: 2rem auto;
-  padding: 1.75rem;
-  background: #1c1826;
-  border: 1px solid #2e2740;
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   font-family: system-ui, sans-serif;
 }
 
-.study-form-title {
-  color: #c4b5fd;
-  font-size: 1.2rem;
-  margin: 0 0 0.5rem;
+.study-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.field label {
+.study-form .field label {
   color: #a39db8;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-.field input,
-.field select {
+.study-form .field input,
+.study-form .field select {
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.6rem 0.75rem;
   background: #14111d;
   border: 1px solid #2e2740;

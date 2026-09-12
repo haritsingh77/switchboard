@@ -4,13 +4,14 @@ import "./StudyForm.css";
 
 interface StudyFormProps {
   addStudy: (study: Omit<Study, "_id">) => void;
+  onDone?: () => void;
 }
 
-export default function StudyForm({ addStudy }: StudyFormProps) {
+export default function StudyForm({ addStudy, onDone }: StudyFormProps) {
   const [subject, setSubject] = useState("");
-  const [duration, setDuration] = useState(0);
-  const [topicsLeft, setTopicsLeft] = useState(0);
-  const [status, setStatus] = useState<Study["status"]>("not-started");
+  const [duration, setDuration] = useState(60);
+  const [topicsLeft, setTopicsLeft] = useState(1);
+  const [status, setStatus] = useState<Study["status"]>("in-progress");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,14 +22,14 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
       status,
     });
     setSubject("");
-    setDuration(0);
-    setTopicsLeft(0);
-    setStatus("not-started");
+    setDuration(60);
+    setTopicsLeft(1);
+    setStatus("in-progress");
+    onDone?.();
   };
 
   return (
     <form className="study-form" onSubmit={handleSubmit}>
-      <h2 className="study-form-title">Add Study Material</h2>
       <div className="field">
         <label>Subject</label>
         <input
@@ -39,10 +40,11 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
         />
       </div>
       <div className="field">
-        <label>Duration</label>
+        <label>Duration (minutes)</label>
         <input
           type="number"
-          placeholder="e.g. 2 hours"
+          min="1"
+          placeholder="e.g. 120"
           value={duration}
           onChange={(e) => setDuration(Number(e.target.value))}
         />
@@ -60,7 +62,7 @@ export default function StudyForm({ addStudy }: StudyFormProps) {
         </select>
       </div>
       <button className="submit-btn" type="submit">
-        Add Study
+        Add Subject
       </button>
     </form>
   );

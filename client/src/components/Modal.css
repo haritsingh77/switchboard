@@ -11,7 +11,6 @@
 
 .modal-card {
   width: 100%;
-  max-width: 420px;
   max-height: 90vh;
   overflow-y: auto;
   background: #1c1826;
@@ -20,6 +19,14 @@
   padding: 1.5rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   font-family: system-ui, sans-serif;
+}
+
+.modal-card-sm {
+  max-width: 420px;
+}
+
+.modal-card-lg {
+  max-width: 760px;
 }
 
 .modal-header {

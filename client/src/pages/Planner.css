@@ -79,6 +79,13 @@
   letter-spacing: 0.05em;
 }
 
+.unscheduled-hint {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #6b6480;
+}
+
 .unscheduled-pills {
   display: flex;
   flex-wrap: wrap;
@@ -106,6 +113,30 @@
   font-size: 0.7rem;
   color: #c4b5fd;
   opacity: 0.8;
+}
+
+.pill-draggable {
+  cursor: grab;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pill-draggable:hover {
+  border-color: #7c3aed;
+}
+
+.pill-draggable:active {
+  cursor: grabbing;
+}
+
+.pill-grip {
+  color: #6b6480;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.pill-dragging {
+  opacity: 0.45;
+  border-color: #7c3aed;
 }
 
 .planner-days {
@@ -145,6 +176,115 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+/* Drop-zone affordances while dragging a topic */
+.day-row-armed .day-sessions {
+  outline: 1px dashed #3a3350;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.day-row-over .day-sessions {
+  outline: 1px dashed #7c3aed;
+  background: rgba(124, 58, 237, 0.06);
+}
+
+.day-row-over .no-sessions {
+  color: #c4b5fd;
+  font-style: normal;
+}
+
+/* Inline schedule chooser shown after a drop */
+.drop-form {
+  background: #14111d;
+  border: 1px solid #7c3aed;
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.drop-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.drop-form-topic {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e9e4f5;
+}
+
+.drop-form-x {
+  background: transparent;
+  border: none;
+  color: #6b6480;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drop-form-x:hover {
+  color: #f87171;
+}
+
+.drop-form-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.drop-form-controls select {
+  padding: 0.45rem 0.55rem;
+  background: #0f0d17;
+  border: 1px solid #2a2438;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.drop-form-controls select:focus {
+  border-color: #7c3aed;
+}
+
+.drop-form-confirm {
+  margin-left: auto;
+  padding: 0.45rem 1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.drop-form-confirm:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.drop-form-confirm:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.drop-form-error {
+  margin: 0;
+  color: #f87171;
+  font-size: 0.78rem;
+}
+
+.drop-form-hint {
+  margin: 0;
+  color: #8b849e;
+  font-size: 0.76rem;
 }
 
 .no-sessions {
@@ -370,4 +510,218 @@
 .detail-save:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* Plan This Week modal */
+.plan-hint {
+  margin: 0 0 1.25rem;
+  color: #8b849e;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.plan-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Each session row is a self-contained card */
+.plan-card {
+  padding: 0.85rem;
+  background: #14111d;
+  border: 1px solid #2a2438;
+  border-radius: 10px;
+}
+
+.plan-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 2.2fr auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.plan-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.plan-field-label {
+  font-size: 0.72rem;
+  color: #8b849e;
+  font-weight: 500;
+}
+
+.plan-select,
+.plan-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.6rem;
+  background: #0f0d17;
+  border: 1px solid #2a2438;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.plan-input {
+  resize: vertical;
+  min-height: 2.5rem;
+  line-height: 1.4;
+}
+
+.plan-select:focus,
+.plan-input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.plan-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #6b6480;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.plan-remove:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+.plan-remove:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Validation — only rendered after a save attempt (see planAttempted) */
+.plan-issue {
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.plan-card-empty {
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.plan-card-empty .plan-field-topics .plan-input {
+  border-color: #f87171;
+}
+
+.plan-card-empty .plan-issue {
+  color: #f87171;
+}
+
+.plan-card-duplicate,
+.plan-card-collision {
+  border-color: rgba(251, 191, 36, 0.55);
+}
+
+.plan-card-duplicate .plan-select,
+.plan-card-collision .plan-select {
+  border-color: #fbbf24;
+}
+
+.plan-card-duplicate .plan-issue,
+.plan-card-collision .plan-issue {
+  color: #fbbf24;
+}
+
+.plan-add-row {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  background: transparent;
+  border: 1px dashed #3a3350;
+  border-radius: 10px;
+  color: #c4b5fd;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.plan-add-row:hover:not(:disabled) {
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.06);
+}
+
+.plan-add-row:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.plan-error {
+  margin-top: 0.85rem;
+}
+
+.plan-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.plan-cancel {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  background: #17131f;
+  border: 1px solid #2a2438;
+  border-radius: 8px;
+  color: #c4b5fd;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.plan-cancel:hover {
+  border-color: #7c3aed;
+}
+
+.plan-save {
+  flex: 2;
+  padding: 0.7rem 1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.plan-save:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.plan-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .plan-fields {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .plan-field-topics {
+    grid-column: 1 / -1;
+  }
+  .plan-remove {
+    grid-column: 1 / -1;
+    justify-self: end;
+    width: auto;
+    padding: 0.3rem 0.5rem;
+  }
 }

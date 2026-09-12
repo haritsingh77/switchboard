@@ -10,6 +10,20 @@ const topicSchema = new mongoose.Schema(
     totalMinutes: { type: Number, default: 0 },
     lastStudiedAt: { type: Date },
     revisionCount: { type: Number, default: 0 },
+    // Links / notes for this topic (LeetCode lists, articles, videos, own notes).
+    resources: [
+      {
+        label: { type: String },
+        url: { type: String },
+      },
+    ],
+    // Spaced-repetition review history (newest appended last).
+    reviews: [
+      {
+        date: { type: Date, default: Date.now },
+        outcome: { type: String, enum: ["knew", "kinda", "forgot"], default: "knew" },
+      },
+    ],
   },
   { timestamps: true },
 );

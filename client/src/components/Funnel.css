@@ -1,0 +1,74 @@
+.funnel {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.funnel-segment {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.funnel-stat {
+  flex: 1;
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 1.1rem;
+  background: #14111d;
+  border: 1px solid #2a2438;
+  border-radius: 10px;
+}
+
+.funnel-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e9e4f5;
+  line-height: 1;
+}
+
+.funnel-label {
+  font-size: 0.78rem;
+  color: #8b849e;
+}
+
+.funnel-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  flex-shrink: 0;
+  color: #6b6480;
+}
+
+.funnel-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #c4b5fd;
+}
+
+.funnel-chevron {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+@media (max-width: 720px) {
+  .funnel-segment {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .funnel-arrow {
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0;
+  }
+  .funnel-chevron {
+    transform: rotate(90deg);
+  }
+}

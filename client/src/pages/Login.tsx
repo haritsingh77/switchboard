@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { apiFetch } from "../api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
@@ -60,6 +60,9 @@ export default function LoginForm() {
           {loading ? "Signing in..." : "Login"}
         </button>
         {error && <p className="login-error">{error}</p>}
+        <p className="login-alt">
+          Don't have an account? <Link to="/signup">Sign up</Link>
+        </p>
       </form>
     </div>
   );

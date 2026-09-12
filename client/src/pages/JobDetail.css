@@ -1,0 +1,311 @@
+.job-detail {
+  font-family: system-ui, sans-serif;
+  color: #e9e4f5;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.jd-msg {
+  color: #a39db8;
+}
+
+.jd-back {
+  color: #c4b5fd;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.jd-back:hover {
+  color: #e9e4f5;
+}
+
+.jd-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.jd-head h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.jd-sub {
+  margin: 0.35rem 0 0;
+  color: #8b849e;
+  font-size: 0.9rem;
+}
+
+.jd-status select,
+.jd-rejection select,
+.round-controls select,
+.round-controls input,
+.reminder-form input {
+  padding: 0.5rem 0.6rem;
+  background: #14111d;
+  border: 1px solid #2e2740;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.jd-status select:focus,
+.round-controls select:focus,
+.round-controls input:focus,
+.reminder-form input:focus {
+  border-color: #7c3aed;
+}
+
+.jd-rejection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #f87171;
+}
+
+.jd-card {
+  background: #16131f;
+  border: 1px solid #2a2438;
+  border-radius: 12px;
+  padding: 1.15rem 1.25rem;
+}
+
+.jd-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.jd-card-head h2 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.jd-add {
+  padding: 0.4rem 0.85rem;
+  background: #17131f;
+  border: 1px solid #2a2438;
+  border-radius: 7px;
+  color: #c4b5fd;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.jd-add:hover {
+  border-color: #7c3aed;
+}
+
+.jd-empty {
+  margin: 0;
+  color: #6b6480;
+  font-size: 0.86rem;
+  font-style: italic;
+}
+
+/* Rounds */
+.round-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.round-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.round-marker {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin-top: 0.7rem;
+  background: #7c3aed;
+}
+.round-passed .round-marker {
+  background: #22c55e;
+}
+.round-failed .round-marker {
+  background: #f87171;
+}
+.round-cancelled .round-marker {
+  background: #6b6480;
+}
+
+.round-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.round-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.round-controls select {
+  flex: 1;
+  min-width: 110px;
+}
+
+.round-remove,
+.reminder-del {
+  background: transparent;
+  border: none;
+  color: #6b6480;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+.round-remove:hover,
+.reminder-del:hover {
+  color: #f87171;
+}
+
+.round-notes {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.65rem;
+  background: #14111d;
+  border: 1px solid #2e2740;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.84rem;
+  resize: vertical;
+  outline: none;
+}
+.round-notes:focus {
+  border-color: #7c3aed;
+}
+
+/* Topics */
+.jd-topic-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.jd-topic-chip {
+  padding: 0.35rem 0.7rem;
+  background: #14111d;
+  border: 1px solid #2a2438;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: #c4b5fd;
+  text-decoration: none;
+}
+.jd-topic-chip:hover {
+  border-color: #7c3aed;
+}
+
+.jd-topic-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.35rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.jd-topic-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  color: #a39db8;
+  cursor: pointer;
+}
+.jd-topic-opt.on {
+  color: #e9e4f5;
+  background: rgba(124, 58, 237, 0.1);
+}
+.jd-topic-opt input {
+  accent-color: #7c3aed;
+}
+
+/* Reminders */
+.reminder-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+.reminder-form input[type="text"] {
+  flex: 1;
+  min-width: 160px;
+}
+.reminder-form button {
+  padding: 0.5rem 1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.reminder-form button:hover {
+  background: #6d28d9;
+}
+
+.reminder-list {
+  display: flex;
+  flex-direction: column;
+}
+.reminder-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid #221d30;
+}
+.reminder-row:first-child {
+  border-top: none;
+}
+.reminder-check {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  min-width: 0;
+}
+.reminder-check input {
+  accent-color: #7c3aed;
+}
+.reminder-title {
+  font-size: 0.88rem;
+}
+.reminder-row.done .reminder-title {
+  color: #6b6480;
+  text-decoration: line-through;
+}
+.reminder-due {
+  font-size: 0.76rem;
+  color: #8b849e;
+  flex-shrink: 0;
+}
+.reminder-due.overdue {
+  color: #fbbf24;
+  font-weight: 600;
+}

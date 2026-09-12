@@ -3,6 +3,12 @@ const Phase = require("../models/Phase");
 const Topic = require("../models/Topic");
 const Session = require("../models/Session");
 const Job = require("../models/Job");
+const Goal = require("../models/Goal");
+const MiniCheck = require("../models/MiniCheck");
+const FullMock = require("../models/FullMock");
+const Reminder = require("../models/Reminder");
+
+const GOAL_DEFAULTS = { studyMinutesTarget: 600, applicationsTarget: 3, mockTarget: 2 };
 
 const DAY = 24 * 60 * 60 * 1000;
 const REVISION_INTERVALS = [1, 3, 7, 14, 30];
@@ -36,13 +42,34 @@ async function getDashboardData(req, res, next) {
 
     const roadmapDoc = await Roadmap.findOne({ userId, isActive: true });
 
-    const [phaseDocs, roadmapTopics, allStudied, weekSessions, streakSessions, lastJob] = await Promise.all([
+    const [
+      phaseDocs,
+      roadmapTopics,
+      allStudied,
+      weekSessions,
+      streakSessions,
+      lastJob,
+      goalDoc,
+      appsThisWeek,
+      miniThisWeek,
+      recentFullMocks,
+      fullThisWeek,
+      appsLast14,
+      remindersDue,
+    ] = await Promise.all([
       roadmapDoc ? Phase.find({ userId, roadmapId: roadmapDoc._id }).sort({ order: 1 }) : Promise.resolve([]),
       roadmapDoc ? Topic.find({ userId, roadmapId: roadmapDoc._id }) : Promise.resolve([]),
       Topic.find({ userId, lastStudiedAt: { $ne: null } }).sort({ lastStudiedAt: 1 }),
       Session.find({ userId, date: { $gte: weekStart, $lt: weekEnd } }).sort({ date: 1 }),
       Session.find({ userId, status: "completed", date: { $gte: streakCutoff } }).select("date"),
       Job.findOne({ userId }).sort({ appliedDate: -1 }),
+      Goal.findOne({ userId }),
+      Job.countDocuments({ userId, appliedDate: { $gte: weekStart, $lt: weekEnd } }),
+      MiniCheck.countDocuments({ userId, date: { $gte: weekStart, $lt: weekEnd } }),
+      FullMock.find({ userId }).sort({ date: -1 }).limit(2),
+      FullMock.countDocuments({ userId, date: { $gte: weekStart, $lt: weekEnd } }),
+      Job.countDocuments({ userId, appliedDate: { $gte: new Date(now.getTime() - 14 * DAY) } }),
+      Reminder.find({ userId, done: false, dueDate: { $lte: todayEnd } }).sort({ dueDate: 1 }),
     ]);
 
     let roadmap = null;
@@ -125,7 +152,109 @@ async function getDashboardData(req, res, next) {
       sessionsThisWeek,
     };
 
-    res.json({ roadmap, todaysSessions, momentum, dueForRevision });
+    // ── Weekly goals: targets vs this-week actuals ──────────────────────────
+    const targets = goalDoc
+      ? {
+          studyMinutesTarget: goalDoc.studyMinutesTarget,
+          applicationsTarget: goalDoc.applicationsTarget,
+          mockTarget: goalDoc.mockTarget,
+        }
+      : { ...GOAL_DEFAULTS };
+    const studyMinutesThisWeek = weekSessions
+      .filter((s) => s.status === "completed")
+      .reduce((sum, s) => sum + (s.minutesSpent || 0), 0);
+    const goals = {
+      targets,
+      actuals: {
+        studyMinutes: studyMinutesThisWeek,
+        applications: appsThisWeek,
+        mocks: miniThisWeek + fullThisWeek,
+      },
+    };
+
+    // ── Next actions: prioritized, data-driven prompts ──────────────────────
+    const nextActions = [];
+    if (dueForRevision.length > 0) {
+      nextActions.push({
+        id: "revision",
+        text: `${dueForRevision.length} topic${dueForRevision.length > 1 ? "s" : ""} overdue for revision`,
+        severity: dueForRevision.length >= 5 ? "danger" : "warning",
+        link: null,
+      });
+    }
+    if (remindersDue.length > 0) {
+      const first = remindersDue[0];
+      nextActions.push({
+        id: "reminder",
+        text: remindersDue.length === 1 ? `Follow-up due: ${first.title}` : `${remindersDue.length} follow-ups due`,
+        severity: "warning",
+        link: first.jobId ? `/jobs/${first.jobId}` : "/jobs",
+      });
+    }
+    if (daysSinceLastApplication != null && daysSinceLastApplication >= 7) {
+      nextActions.push({
+        id: "applications",
+        text: `No applications in ${daysSinceLastApplication} days`,
+        severity: daysSinceLastApplication >= 14 ? "danger" : "warning",
+        link: "/jobs",
+      });
+    }
+    for (const ph of roadmap ? roadmap.phases.filter((p) => p.behindSchedule) : []) {
+      nextActions.push({ id: `behind-${ph.name}`, text: `${ph.name} is behind schedule`, severity: "warning", link: "/roadmap" });
+    }
+    if (recentFullMocks.length >= 2) {
+      const [latest, prev] = recentFullMocks;
+      let worstAxis = null;
+      let worstDelta = 0;
+      for (const axis of ["dsa", "concepts", "complexity", "architecture"]) {
+        const delta = (latest.scores?.[axis] ?? 0) - (prev.scores?.[axis] ?? 0);
+        if (delta < worstDelta) {
+          worstDelta = delta;
+          worstAxis = axis;
+        }
+      }
+      if (worstAxis && worstDelta <= -10) {
+        const label = worstAxis.charAt(0).toUpperCase() + worstAxis.slice(1);
+        nextActions.push({
+          id: "mock-regression",
+          text: `Mock ${label} score dropped ${Math.abs(worstDelta)}%`,
+          severity: "warning",
+          link: "/mocks",
+        });
+      }
+    }
+    const severityRank = { danger: 0, warning: 1, info: 2 };
+    nextActions.sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+
+    // ── Readiness score: one weighted 0–100 signal of "how ready am I?" ─────
+    const roadmapComp = roadmap ? roadmap.overallCompletion : 0; // 0..1
+    const latestMock = recentFullMocks[0];
+    const mockComp = latestMock
+      ? (latestMock.scores.dsa + latestMock.scores.concepts + latestMock.scores.complexity + latestMock.scores.architecture) /
+        400
+      : 0;
+    const revisionComp = allStudied.length ? 1 - dueForRevision.length / allStudied.length : 1;
+    const appsComp = Math.min(1, appsLast14 / 3);
+    const readiness = {
+      score: Math.round(roadmapComp * 35 + mockComp * 30 + revisionComp * 20 + appsComp * 15),
+      components: {
+        roadmap: Math.round(roadmapComp * 100),
+        mocks: Math.round(mockComp * 100),
+        revision: Math.round(revisionComp * 100),
+        applications: Math.round(appsComp * 100),
+      },
+    };
+
+    res.json({
+      roadmap,
+      todaysSessions,
+      momentum,
+      dueForRevision,
+      goals,
+      nextActions,
+      readiness,
+      remindersDue,
+    });
   } catch (err) {
     next(err);
   }

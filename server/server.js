@@ -13,6 +13,9 @@ const sessionRoutes = require("./routes/sessionRoutes");
 const mockRoutes = require("./routes/mockRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const exportRoutes = require("./routes/exportRoutes");
+const goalRoutes = require("./routes/goalRoutes");
+const reminderRoutes = require("./routes/reminderRoutes");
 const errorHandler = require("./middleware/errorHandler");
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -38,6 +41,9 @@ app.use("/sessions", sessionRoutes);
 app.use("/mocks", mockRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/export", exportRoutes);
+app.use("/goals", goalRoutes);
+app.use("/reminders", reminderRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;

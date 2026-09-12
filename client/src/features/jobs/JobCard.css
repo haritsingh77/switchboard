@@ -1,55 +1,104 @@
 .job-item {
   background: #1c1826;
   border: 1px solid #2e2740;
-  border-radius: 12px;
-  padding: 1.1rem 1.25rem;
-  margin-bottom: 0.9rem;
+  border-radius: 10px;
+  padding: 0.85rem 0.9rem;
   font-family: system-ui, sans-serif;
-  transition: border-color 0.2s;
+  cursor: grab;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.15s;
 }
 
 .job-item:hover {
   border-color: #7c3aed;
 }
 
+.job-item:active {
+  cursor: grabbing;
+}
+
+.job-item-dragging {
+  opacity: 0.5;
+  border-color: #7c3aed;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.job-item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .job-item-title {
   color: #e9e4f5;
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  margin: 0 0 0.6rem;
+  margin: 0;
+  line-height: 1.3;
 }
 
-.job-item-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #a39db8;
-  border-bottom: 1px solid #241f30;
-}
-
-.job-item-row:last-of-type {
-  border-bottom: none;
-}
-
-.job-item-row strong {
-  color: #c4b5fd;
-  font-weight: 600;
-}
-
-.delete-btn {
-  margin-top: 0.7rem;
-  padding: 0.4rem 0.9rem;
+.job-item-remove {
+  flex-shrink: 0;
   background: transparent;
-  border: 1px solid #7c3aed;
-  color: #c4b5fd;
-  border-radius: 8px;
-  font-size: 0.82rem;
+  border: none;
+  color: #6b6480;
+  font-size: 1.1rem;
+  line-height: 1;
   cursor: pointer;
-  transition: all 0.2s;
+  padding: 0 0.15rem;
+  transition: color 0.15s;
 }
 
-.delete-btn:hover {
-  background: #7c3aed;
-  color: #fff;
+.job-item-remove:hover {
+  color: #f87171;
+}
+
+.job-item-sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #a39db8;
+}
+
+.job-item-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.job-item-package {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #c4b5fd;
+}
+
+.job-item-date {
+  font-size: 0.75rem;
+  color: #6b6480;
+}
+
+.job-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.job-item-flag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: rgba(251, 191, 36, 0.12);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  color: #fbbf24;
+}
+
+.job-item-rounds {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: rgba(124, 58, 237, 0.15);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  color: #c4b5fd;
 }

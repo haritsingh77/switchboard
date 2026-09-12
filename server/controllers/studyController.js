@@ -2,7 +2,7 @@ const Study = require("../models/Study");
 
 async function getAllSubjects(req, res, next) {
   try {
-    const subjects = await Study.find({ userId: req.userId });
+    const subjects = await Study.find({ userId: req.userId, deletedAt: null });
     res.json(subjects);
   } catch (err) {
     next(err);
@@ -47,7 +47,10 @@ async function updateSubject(req, res, next) {
 
 async function deleteSubject(req, res, next) {
   try {
-    const removedSubject = await Study.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+    const removedSubject = await Study.findOneAndUpdate(
+      { _id: req.params.id, userId: req.userId, deletedAt: null },
+      { deletedAt: new Date() },
+    );
     if (removedSubject === null) return res.status(404).json({ error: "Record not found" });
     res.status(200).json({ message: "Record deleted successfully" });
   } catch (err) {

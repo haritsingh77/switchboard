@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../api";
 import type { Roadmap as RoadmapType, Phase, Topic } from "../types";
 import Modal from "../components/Modal";
@@ -23,17 +24,18 @@ interface PhaseView extends Phase {
   completion: number;
   phaseStatus: "done" | "current" | "upcoming";
   topics: Topic[];
+  doneCount: number;
 }
 
 function Roadmap() {
+  const navigate = useNavigate();
   const [roadmaps, setRoadmaps] = useState<RoadmapType[]>([]);
   const [phases, setPhases] = useState<Phase[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAddPhase, setShowAddPhase] = useState(false);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [now] = useState(() => Date.now());
 
   useEffect(() => {
@@ -64,8 +66,8 @@ function Roadmap() {
     let currentAssigned = false;
     const views: PhaseView[] = ordered.map((p) => {
       const phaseTopics = roadmapTopics.filter((t) => t.phaseId === p._id);
-      const done = phaseTopics.filter((t) => t.status === "completed").length;
-      const completion = phaseTopics.length ? Math.round((done / phaseTopics.length) * 100) : 0;
+      const doneCount = phaseTopics.filter((t) => t.status === "completed").length;
+      const completion = phaseTopics.length ? Math.round((doneCount / phaseTopics.length) * 100) : 0;
       let phaseStatus: PhaseView["phaseStatus"];
       if (completion >= 100) {
         phaseStatus = "done";
@@ -75,7 +77,7 @@ function Roadmap() {
       } else {
         phaseStatus = "upcoming";
       }
-      return { ...p, completion, phaseStatus, topics: phaseTopics };
+      return { ...p, completion, phaseStatus, topics: phaseTopics, doneCount };
     });
 
     const doneAll = roadmapTopics.filter((t) => t.status === "completed").length;
@@ -87,6 +89,21 @@ function Roadmap() {
 
     return { phaseViews: views, overallCompletion: overall, weeksElapsed: elapsed, weeksRemaining: remaining };
   }, [roadmap, phases, topics, now]);
+
+  // Open the current phase by default once data lands.
+  useEffect(() => {
+    const current = phaseViews.find((p) => p.phaseStatus === "current");
+    if (current) setExpandedIds((prev) => (prev.size === 0 ? new Set([current._id]) : prev));
+  }, [phaseViews]);
+
+  function toggle(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   async function addPhase(values: { name: string; startDate: string; endDate: string; topics: string[] }) {
     if (!roadmap) return;
@@ -135,8 +152,8 @@ function Roadmap() {
         <div>
           <h1>Roadmap</h1>
           <p className="roadmap-subtitle">
-            Target: {roadmap.goal || roadmap.name}
-            {roadmap.targetDate ? ` · ${formatDate(roadmap.targetDate)}` : ""}
+            {roadmap.goal || roadmap.name}
+            {roadmap.targetDate ? ` · target ${formatDate(roadmap.targetDate)}` : ""}
           </p>
         </div>
         <button className="roadmap-add-btn" onClick={() => setShowAddPhase(true)}>
@@ -144,55 +161,87 @@ function Roadmap() {
         </button>
       </div>
 
-      <div className="roadmap-card">
-        <div className="roadmap-overall">
-          <div className="roadmap-ring" style={{ background: ring }}>
-            <span>{overallCompletion}%</span>
-          </div>
-          <div>
-            <p className="roadmap-overall-label">Overall Completion</p>
-            <p className="roadmap-overall-weeks">
-              {weeksElapsed} weeks elapsed, {weeksRemaining} remaining
-            </p>
+      <div className="roadmap-hero">
+        <div className="roadmap-ring" style={{ background: ring }}>
+          <span>{overallCompletion}%</span>
+        </div>
+        <div className="roadmap-hero-info">
+          <p className="roadmap-hero-title">{roadmap.name}</p>
+          <p className="roadmap-hero-weeks">
+            {weeksElapsed} weeks in · {weeksRemaining} to target
+          </p>
+          <div className="roadmap-hero-legend">
+            <span>
+              <i className="dot done" /> Done
+            </span>
+            <span>
+              <i className="dot current" /> In progress
+            </span>
+            <span>
+              <i className="dot upcoming" /> Upcoming
+            </span>
           </div>
         </div>
+      </div>
 
-        <div className="phase-list">
-          {phaseViews.length === 0 && <p className="roadmap-msg">No phases yet. Add one to get started.</p>}
-          {phaseViews.map((p) => (
-            <div
-              key={p._id}
-              className={`phase-row ${p.phaseStatus === "current" ? "phase-row-current" : ""}`}
-              onClick={() => setExpandedId(expandedId === p._id ? null : p._id)}
-            >
-              <div className="phase-row-main">
-                <span className={`phase-badge phase-badge-${p.phaseStatus}`}>
-                  {p.phaseStatus === "done" ? "Done" : p.phaseStatus === "current" ? "Current" : "Upcoming"}
-                </span>
-                <div className="phase-row-info">
-                  <span className="phase-name">{p.name}</span>
-                  {(p.startDate || p.endDate) && (
-                    <span className="phase-dates">
-                      {formatDate(p.startDate)} - {formatDate(p.endDate)}
-                    </span>
-                  )}
-                </div>
-                <span className="phase-pct">{p.completion}%</span>
-                <span className="phase-chevron">{expandedId === p._id ? "▴" : "▾"}</span>
+      <div className="roadmap-track">
+        {phaseViews.length === 0 && <p className="roadmap-msg">No phases yet. Add one to get started.</p>}
+        {phaseViews.map((p, i) => {
+          const expanded = expandedIds.has(p._id);
+          return (
+            <div key={p._id} className={`track-phase track-phase-${p.phaseStatus}`}>
+              <div className="track-spine">
+                <div className="track-node">{p.phaseStatus === "done" ? "✓" : i + 1}</div>
+                {i < phaseViews.length - 1 && <div className="track-line" />}
               </div>
-              {expandedId === p._id && (
-                <div className="phase-topics" onClick={(e) => e.stopPropagation()}>
-                  {p.topics.length === 0 && <span className="phase-topics-empty">No topics in this phase.</span>}
-                  {p.topics.map((t) => (
-                    <span key={t._id} className={`phase-topic phase-topic-${t.status}`}>
-                      {t.name}
-                    </span>
-                  ))}
-                </div>
-              )}
+
+              <div className="track-content">
+                <button className="phase-card-head" aria-expanded={expanded} onClick={() => toggle(p._id)}>
+                  <div className="phase-card-info">
+                    <div className="phase-card-titlerow">
+                      <span className={`phase-badge phase-badge-${p.phaseStatus}`}>
+                        {p.phaseStatus === "done" ? "Done" : p.phaseStatus === "current" ? "In progress" : "Upcoming"}
+                      </span>
+                      {(p.startDate || p.endDate) && (
+                        <span className="phase-dates">
+                          {formatDate(p.startDate)} – {formatDate(p.endDate)}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="phase-name">{p.name}</h3>
+                    <div className="phase-progress-row">
+                      <div className="rm-progress-track">
+                        <div className={`rm-progress-fill rm-fill-${p.phaseStatus}`} style={{ width: `${p.completion}%` }} />
+                      </div>
+                      <span className="phase-pct">
+                        {p.doneCount}/{p.topics.length} · {p.completion}%
+                      </span>
+                    </div>
+                  </div>
+                  <span className={`phase-chevron ${expanded ? "open" : ""}`}>▾</span>
+                </button>
+
+                {expanded && (
+                  <div className="phase-topics-grid">
+                    {p.topics.length === 0 && <span className="phase-topics-empty">No topics in this phase.</span>}
+                    {p.topics.map((t) => (
+                      <button
+                        key={t._id}
+                        className={`rm-topic rm-topic-${t.status}`}
+                        onClick={() => navigate(`/topics/${t._id}`)}
+                      >
+                        <span className="rm-topic-icon">
+                          {t.status === "completed" ? "✓" : t.status === "scheduled" ? "◐" : "○"}
+                        </span>
+                        <span className="rm-topic-name">{t.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
       <Modal isOpen={showAddPhase} onClose={() => setShowAddPhase(false)} title="Add Phase to Roadmap">

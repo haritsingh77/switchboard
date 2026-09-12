@@ -21,4 +21,9 @@ const sessionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// Prevent double-booking the same slot. Track is part of the key so a morning
+// DSA session and a morning Build session can legitimately coexist, matching the
+// seed data and the Planner's own collision rule.
+sessionSchema.index({ userId: 1, date: 1, slot: 1, track: 1 }, { unique: true });
+
 module.exports = mongoose.model("Session", sessionSchema);
