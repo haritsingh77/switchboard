@@ -1,0 +1,120 @@
+.notes {
+  font-family: system-ui, sans-serif;
+  color: #e9e4f5;
+  max-width: 900px;
+}
+
+.notes-msg {
+  color: #a39db8;
+}
+
+.notes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.notes-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.notes-subtitle {
+  margin: 0.3rem 0 0;
+  color: #8b849e;
+  font-size: 0.85rem;
+}
+
+.notes-search {
+  flex-shrink: 0;
+  min-width: 220px;
+  padding: 0.55rem 0.8rem;
+  background: #14111d;
+  border: 1px solid #2e2740;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.notes-search::placeholder {
+  color: #524d63;
+}
+
+.notes-search:focus {
+  border-color: #7c3aed;
+}
+
+.notes-empty {
+  color: #6b6480;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.note-card {
+  background: #16131f;
+  border: 1px solid #2a2438;
+  border-radius: 12px;
+  padding: 1.1rem 1.35rem;
+}
+
+.note-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.note-date {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e9e4f5;
+}
+
+.note-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #a78bfa;
+}
+
+.note-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.note-topic {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  background: #221d30;
+  border: 1px solid #2e2740;
+  border-radius: 999px;
+  color: #c4b5fd;
+}
+
+.note-topic.done {
+  color: #6ee7b7;
+  border-color: #275e4a;
+}
+
+.note-body {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #cdc7dc;
+  white-space: pre-wrap;
+}

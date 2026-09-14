@@ -10,6 +10,7 @@ export default function LoginForm() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +23,7 @@ export default function LoginForm() {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      login(data.token);
+      login(data.token, remember);
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login Failed");
@@ -56,6 +57,14 @@ export default function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+        <label className="login-remember">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
+          <span>Remember me</span>
+        </label>
         <button className="login-btn" type="submit" disabled={loading}>
           {loading ? "Signing in..." : "Login"}
         </button>

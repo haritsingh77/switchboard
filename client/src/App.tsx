@@ -10,6 +10,7 @@ import JobDetail from "./pages/JobDetail";
 import StudyList from "./pages/Study";
 import Mocks from "./pages/Mocks";
 import Reviews from "./pages/Reviews";
+import Notes from "./pages/Notes";
 import TopicDetail from "./pages/TopicDetail";
 import Settings from "./pages/Settings";
 import Revise from "./pages/Revise";
@@ -29,6 +30,7 @@ function App() {
           <Route path="/study" element={<StudyList />} />
           <Route path="/mocks" element={<Mocks />} />
           <Route path="/reviews" element={<Reviews />} />
+          <Route path="/notes" element={<Notes />} />
           <Route path="/topics/:id" element={<TopicDetail />} />
           <Route path="/revise" element={<Revise />} />
           <Route path="/settings" element={<Settings />} />

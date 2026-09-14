@@ -1,7 +1,9 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function getToken() {
-    return localStorage.getItem("token");
+    // "Remember me" persists to localStorage; otherwise the token lives in
+    // sessionStorage and is cleared when the browser session ends.
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}) {

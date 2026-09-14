@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 
 interface AuthContextValue {
   token: string | null;
-  login: (token: string) => void;
+  login: (token: string, remember?: boolean) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -10,15 +10,26 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [token, setToken] = useState<string | null>(
+    () => localStorage.getItem("token") || sessionStorage.getItem("token"),
+  );
 
-  const login = (newToken: string) => {
-    localStorage.setItem("token", newToken);
+  // remember = true  → persist in localStorage (survives browser restart)
+  // remember = false → sessionStorage only (cleared when the browser closes)
+  const login = (newToken: string, remember = true) => {
+    if (remember) {
+      localStorage.setItem("token", newToken);
+      sessionStorage.removeItem("token");
+    } else {
+      sessionStorage.setItem("token", newToken);
+      localStorage.removeItem("token");
+    }
     setToken(newToken);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setToken(null);
   };
 
