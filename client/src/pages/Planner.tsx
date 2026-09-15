@@ -10,6 +10,15 @@ const MAX_PLAN_ROWS = 7;
 const TRACK_LABELS: Record<Session["track"], string> = { dsa: "DSA", build: "Build", other: "Other" };
 const SLOT_ORDER: Record<Session["slot"], number> = { morning: 0, evening: 1 };
 
+// Quick session presets (track + typical planned minutes).
+const SESSION_TEMPLATES: { label: string; track: Session["track"]; plannedMinutes: number }[] = [
+  { label: "DSA Grind — 90m", track: "dsa", plannedMinutes: 90 },
+  { label: "Quick DSA — 45m", track: "dsa", plannedMinutes: 45 },
+  { label: "Build Session — 120m", track: "build", plannedMinutes: 120 },
+  { label: "System Design — 60m", track: "other", plannedMinutes: 60 },
+  { label: "Behavioral + Resume — 45m", track: "other", plannedMinutes: 45 },
+];
+
 function mondayOf(value: Date) {
   const d = new Date(value);
   const daysSinceMonday = (d.getDay() + 6) % 7;
@@ -32,9 +41,18 @@ function sessionTitle(session: Session) {
   return TRACK_LABELS[session.track];
 }
 
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
+function elapsedMin(iso: string) {
+  return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
+}
+
 type Draft = {
   notes: string;
   topics: SessionTopic[];
+  focusRating: number;
 };
 
 type PlanRow = {
@@ -42,6 +60,7 @@ type PlanRow = {
   slot: Session["slot"];
   track: Session["track"];
   topics: string;
+  plannedMinutes: number;
 };
 
 type RowIssue = "empty" | "duplicate" | "collision" | null;
@@ -53,7 +72,7 @@ const ISSUE_TEXT: Record<Exclude<RowIssue, null>, string> = {
 };
 
 function newPlanRow(): PlanRow {
-  return { dayIndex: 0, slot: "morning", track: "dsa", topics: "" };
+  return { dayIndex: 0, slot: "morning", track: "dsa", topics: "", plannedMinutes: 0 };
 }
 
 function parseTopics(input: string): SessionTopic[] {
@@ -93,7 +112,14 @@ function Planner() {
   const [draggingTopic, setDraggingTopic] = useState<{ id: string; name: string } | null>(null);
   const [dragOverDay, setDragOverDay] = useState<number | null>(null);
   const [dropForm, setDropForm] = useState<
-    { dayIndex: number; id: string; name: string; slot: Session["slot"]; track: Session["track"] } | null
+    {
+      dayIndex: number;
+      id: string;
+      name: string;
+      slot: Session["slot"];
+      track: Session["track"];
+      plannedMinutes: number;
+    } | null
   >(null);
   const [dropSaving, setDropSaving] = useState(false);
   const [dropError, setDropError] = useState("");
@@ -157,8 +183,28 @@ function Planner() {
       return;
     }
     setExpandedId(session._id);
-    setDraft({ notes: session.notes ?? "", topics: session.topics.map((t) => ({ ...t })) });
+    setDraft({
+      notes: session.notes ?? "",
+      topics: session.topics.map((t) => ({ ...t })),
+      focusRating: session.focusRating ?? 0,
+    });
     setSaveError("");
+  }
+
+  function setFocusRating(value: number) {
+    setDraft((d) => (d ? { ...d, focusRating: value } : d));
+  }
+
+  async function startSession(session: Session) {
+    try {
+      const updated = (await apiFetch(`/sessions/${session._id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ startedAt: new Date().toISOString() }),
+      })) as Session;
+      setSessions((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
+    } catch {
+      // non-critical
+    }
   }
 
   function toggleTopic(index: number) {
@@ -185,7 +231,11 @@ function Planner() {
     try {
       const updated = (await apiFetch(`/sessions/${session._id}/complete`, {
         method: "PATCH",
-        body: JSON.stringify({ notes: draft.notes, topics: draft.topics }),
+        body: JSON.stringify({
+          notes: draft.notes,
+          topics: draft.topics,
+          focusRating: draft.focusRating || undefined,
+        }),
       })) as Session;
       setSessions((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
       setExpandedId(null);
@@ -219,7 +269,7 @@ function Planner() {
   function onDayDrop(e: React.DragEvent, dayIndex: number) {
     e.preventDefault();
     if (!draggingTopic) return;
-    setDropForm({ dayIndex, id: draggingTopic.id, name: draggingTopic.name, slot: "morning", track: "dsa" });
+    setDropForm({ dayIndex, id: draggingTopic.id, name: draggingTopic.name, slot: "morning", track: "dsa", plannedMinutes: 0 });
     setDropError("");
     setDraggingTopic(null);
     setDragOverDay(null);
@@ -250,6 +300,7 @@ function Planner() {
                 date: date.toISOString(),
                 slot: dropForm.slot,
                 track: dropForm.track,
+                plannedMinutes: dropForm.plannedMinutes || 0,
                 topics: [{ topicId: dropForm.id, name: dropForm.name, completed: false, minutesSpent: 0 }],
               },
             ],
@@ -346,6 +397,7 @@ function Planner() {
         date: date.toISOString(),
         slot: row.slot,
         track: row.track,
+        plannedMinutes: row.plannedMinutes || 0,
         topics: parseTopics(row.topics),
       };
     });
@@ -448,6 +500,23 @@ function Planner() {
                           ×
                         </button>
                       </div>
+                      {!dropMatchesExisting && (
+                        <select
+                          className="drop-form-template"
+                          value=""
+                          onChange={(e) => {
+                            const t = SESSION_TEMPLATES[Number(e.target.value)];
+                            if (t) setDropForm((f) => (f ? { ...f, track: t.track, plannedMinutes: t.plannedMinutes } : f));
+                          }}
+                        >
+                          <option value="">Template…</option>
+                          {SESSION_TEMPLATES.map((t, idx) => (
+                            <option key={idx} value={idx}>
+                              {t.label}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                       <div className="drop-form-controls">
                         <select
                           value={dropForm.slot}
@@ -468,6 +537,9 @@ function Planner() {
                           {dropSaving ? "Saving..." : dropMatchesExisting ? "Add to session" : "Schedule"}
                         </button>
                       </div>
+                      {!dropMatchesExisting && dropForm.plannedMinutes > 0 && (
+                        <p className="drop-form-hint">Planned {dropForm.plannedMinutes} min.</p>
+                      )}
                       {dropMatchesExisting && !dropError && (
                         <p className="drop-form-hint">Adds to the existing {dropForm.slot} · {TRACK_LABELS[dropForm.track]} session.</p>
                       )}
@@ -491,7 +563,31 @@ function Planner() {
                             <span className="session-meta">
                               {session.slot.toUpperCase()} · {TRACK_LABELS[session.track]}
                             </span>
-                            <span className="session-title">{sessionTitle(session)}</span>
+                            {session.topics.length > 0 ? (
+                              <div className="session-topic-lines">
+                                {session.topics.map((t, i) => (
+                                  <span key={i} className={`session-topic-line${t.completed ? " done" : ""}`}>
+                                    {t.name}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="session-title">{sessionTitle(session)}</span>
+                            )}
+                            {session.status === "completed" ? (
+                              <span className="session-sub">
+                                {session.minutesSpent}m
+                                {session.plannedMinutes ? ` / ${session.plannedMinutes}m planned` : ""}
+                                {session.focusRating ? ` · focus ${"★".repeat(session.focusRating)}` : ""}
+                              </span>
+                            ) : session.plannedMinutes || session.startedAt ? (
+                              <span className="session-sub">
+                                {session.plannedMinutes ? `planned ${session.plannedMinutes}m` : ""}
+                                {session.startedAt
+                                  ? `${session.plannedMinutes ? " · " : ""}▶ started ${formatTime(session.startedAt)}`
+                                  : ""}
+                              </span>
+                            ) : null}
                           </div>
                           <span className={`status-pill status-pill-${session.status}`}>{session.status}</span>
                         </button>
@@ -531,10 +627,43 @@ function Planner() {
                               />
                             </label>
 
+                            <div className="detail-timing">
+                              {session.status !== "completed" &&
+                                (!session.startedAt ? (
+                                  <button type="button" className="detail-start" onClick={() => startSession(session)}>
+                                    ▶ Start
+                                  </button>
+                                ) : (
+                                  <span className="detail-started">
+                                    Started {formatTime(session.startedAt)} · ~{elapsedMin(session.startedAt)}m
+                                  </span>
+                                ))}
+                              <span className="detail-total">
+                                Actual {draftTotal}m
+                                {session.plannedMinutes ? ` / ${session.plannedMinutes}m planned` : ""}
+                              </span>
+                            </div>
+
+                            <div className="detail-focus">
+                              <span className="detail-focus-label">Focus</span>
+                              <div className="focus-stars">
+                                {[1, 2, 3, 4, 5].map((n) => (
+                                  <button
+                                    key={n}
+                                    type="button"
+                                    className={`focus-star${draft.focusRating >= n ? " on" : ""}`}
+                                    aria-label={`${n} of 5`}
+                                    onClick={() => setFocusRating(draft.focusRating === n ? 0 : n)}
+                                  >
+                                    ★
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
                             {saveError && <p className="detail-error">{saveError}</p>}
 
                             <div className="detail-actions">
-                              <span className="detail-total">Total: {draftTotal} min</span>
                               <button className="detail-save" disabled={saving} onClick={() => saveSession(session)}>
                                 {saving ? "Saving..." : "Save & Mark Complete"}
                               </button>
@@ -562,6 +691,24 @@ function Planner() {
             const issue = planAttempted ? rowIssues[i] : null;
             return (
               <div key={i} className={`plan-card${issue ? ` plan-card-${issue}` : ""}`}>
+                <div className="plan-template-row">
+                  <select
+                    className="plan-template"
+                    value=""
+                    onChange={(e) => {
+                      const t = SESSION_TEMPLATES[Number(e.target.value)];
+                      if (t) updatePlanRow(i, { track: t.track, plannedMinutes: t.plannedMinutes });
+                    }}
+                  >
+                    <option value="">Template…</option>
+                    {SESSION_TEMPLATES.map((t, idx) => (
+                      <option key={idx} value={idx}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                  {row.plannedMinutes > 0 && <span className="plan-planned">Planned {row.plannedMinutes}m</span>}
+                </div>
                 <div className="plan-fields">
                   <label className="plan-field plan-field-sm">
                     <span className="plan-field-label">Day</span>

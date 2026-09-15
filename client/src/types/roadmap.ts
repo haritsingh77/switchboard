@@ -57,7 +57,10 @@ export interface Session {
     slot: "morning" | "evening";
     track: "dsa" | "build" | "other";
     status: "planned" | "completed" | "skipped";
+    plannedMinutes?: number;
     minutesSpent: number;
+    startedAt?: string;
+    focusRating?: number;
     notes?: string;
     topics: SessionTopic[];
     createdAt: string;

@@ -7,7 +7,10 @@ const sessionSchema = new mongoose.Schema(
     slot: { type: String, enum: ["morning", "evening"], required: true },
     track: { type: String, enum: ["dsa", "build", "other"], required: true },
     status: { type: String, enum: ["planned", "completed", "skipped"], default: "planned" },
+    plannedMinutes: { type: Number, default: 0 },
     minutesSpent: { type: Number, default: 0 },
+    startedAt: { type: Date },
+    focusRating: { type: Number, min: 1, max: 5 },
     notes: { type: String },
     topics: [
       {

@@ -51,6 +51,7 @@ async function createSessionsBulk(req, res, next) {
       track: s.track,
       topics: s.topics,
       notes: s.notes,
+      plannedMinutes: s.plannedMinutes || 0,
       userId: req.userId,
     }));
     let created;
@@ -82,11 +83,15 @@ async function completeSession(req, res, next) {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    const { notes, topics } = req.body;
+    const { notes, topics, focusRating } = req.body;
 
     session.status = "completed";
     if (notes !== undefined) session.notes = notes;
     if (Array.isArray(topics)) session.topics = topics;
+    if (focusRating !== undefined) {
+      const r = Number(focusRating);
+      session.focusRating = r >= 1 && r <= 5 ? r : undefined;
+    }
 
     const sessionTopics = session.topics || [];
     session.minutesSpent = sessionTopics.reduce((sum, t) => sum + (t.minutesSpent || 0), 0);
@@ -112,7 +117,7 @@ async function completeSession(req, res, next) {
 
 async function updateSession(req, res, next) {
   try {
-    const allowed = ["date", "slot", "track", "notes"];
+    const allowed = ["date", "slot", "track", "notes", "plannedMinutes", "startedAt", "status"];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
