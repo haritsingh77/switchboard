@@ -107,9 +107,16 @@ function Revise() {
         </div>
       ) : (
         <div className="revise-card">
-          <span className="revise-overdue">
-            {current.daysOverdue && current.daysOverdue > 0 ? `${current.daysOverdue}d overdue` : "due today"}
-          </span>
+          <div className="revise-flags">
+            {current.daysOverdue && current.daysOverdue > 0 ? (
+              <span className="revise-overdue">{current.daysOverdue}d overdue</span>
+            ) : current.reasons?.includes("overdue") ? (
+              <span className="revise-overdue">due today</span>
+            ) : null}
+            {current.reasons?.includes("weak") && (
+              <span className="revise-flag-weak">flagged from recent mock / interview</span>
+            )}
+          </div>
           <h2 className="revise-topic">{current.name}</h2>
           <p className="revise-meta">
             Last studied {relativeDays(current.lastStudiedAt)} · Revised {current.revisionCount}× ·{" "}

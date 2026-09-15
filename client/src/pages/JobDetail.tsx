@@ -255,6 +255,14 @@ function JobDetail() {
         )}
       </section>
 
+      {/* Post-interview debrief */}
+      <section className="jd-card">
+        <div className="jd-card-head">
+          <h2>Post-interview Debrief</h2>
+        </div>
+        <DebriefForm topics={topics} defaultTopicIds={job.relevantTopicIds || []} />
+      </section>
+
       {/* Follow-ups */}
       <section className="jd-card">
         <div className="jd-card-head">
@@ -312,6 +320,70 @@ function ReminderForm({ onAdd }: { onAdd: (title: string, dueDate: string) => vo
       <input type="date" value={due} onChange={(e) => setDue(e.target.value)} />
       <button type="submit">Add</button>
     </form>
+  );
+}
+
+function DebriefForm({ topics, defaultTopicIds }: { topics: Topic[]; defaultTopicIds: string[] }) {
+  const [selected, setSelected] = useState<string[]>(defaultTopicIds);
+  const [filter, setFilter] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  function toggle(id: string) {
+    setSelected((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  }
+
+  async function save() {
+    if (selected.length === 0) return;
+    setSaving(true);
+    setMsg("");
+    try {
+      const items = selected.map((id) => {
+        const t = topics.find((x) => x._id === id);
+        return { topicId: id, topicName: t?.name, kind: "problem", correct: false };
+      });
+      await apiFetch("/mocks/mini", {
+        method: "POST",
+        body: JSON.stringify({ date: new Date().toISOString(), items }),
+      });
+      setMsg(`Flagged ${selected.length} topic${selected.length > 1 ? "s" : ""} for review — they'll surface in Revise.`);
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Failed to save debrief");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="debrief">
+      <p className="debrief-hint">
+        Mark the topics that came up or that you struggled with — this flags them as weak and surfaces them in Revise.
+      </p>
+      <input
+        type="text"
+        className="debrief-filter"
+        placeholder="Filter topics…"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+      />
+      <div className="jd-topic-picker">
+        {topics
+          .filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()))
+          .map((t) => {
+            const on = selected.includes(t._id);
+            return (
+              <label key={t._id} className={`jd-topic-opt ${on ? "on" : ""}`}>
+                <input type="checkbox" checked={on} onChange={() => toggle(t._id)} />
+                <span>{t.name}</span>
+              </label>
+            );
+          })}
+      </div>
+      {msg && <p className="debrief-msg">{msg}</p>}
+      <button className="debrief-save" disabled={saving || selected.length === 0} onClick={save}>
+        {saving ? "Saving..." : `Flag ${selected.length} for review`}
+      </button>
+    </div>
   );
 }
 

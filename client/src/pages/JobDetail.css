@@ -225,6 +225,70 @@
   max-height: 280px;
   overflow-y: auto;
 }
+
+/* Post-interview debrief */
+.debrief {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.debrief-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #8b849e;
+  line-height: 1.5;
+}
+
+.debrief-filter {
+  padding: 0.5rem 0.65rem;
+  background: #14111d;
+  border: 1px solid #2e2740;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.debrief-filter:focus {
+  border-color: #7c3aed;
+}
+
+.debrief .jd-topic-picker {
+  max-height: 220px;
+  padding: 0.35rem;
+  background: #14111d;
+  border: 1px solid #2a2438;
+  border-radius: 8px;
+}
+
+.debrief-msg {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #4ade80;
+}
+
+.debrief-save {
+  align-self: flex-start;
+  padding: 0.55rem 1.1rem;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.debrief-save:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.debrief-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 .jd-topic-opt {
   display: flex;
   align-items: center;

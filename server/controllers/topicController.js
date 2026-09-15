@@ -2,9 +2,14 @@ const Topic = require("../models/Topic");
 const Roadmap = require("../models/Roadmap");
 const Phase = require("../models/Phase");
 const Session = require("../models/Session");
+const FullMock = require("../models/FullMock");
+const MiniCheck = require("../models/MiniCheck");
 
 const DAY = 24 * 60 * 60 * 1000;
 const REVISION_INTERVALS = [1, 3, 7, 14, 30];
+const WEAK_MOCK_THRESHOLD = 60; // overall avg below this flags the mock's topics
+const MOCK_WINDOW_DAYS = 45;
+const CHECK_WINDOW_DAYS = 30;
 
 function dueMs(topic) {
   const idx = Math.min(topic.revisionCount, REVISION_INTERVALS.length - 1);
@@ -124,23 +129,59 @@ async function reviseTopic(req, res, next) {
   }
 }
 
-// The revision queue: topics past their spaced-repetition interval, most overdue first.
+// The revision queue: topics that are overdue OR flagged by a recent weak full
+// mock / failed mini-check (interview debriefs create the latter). Each item
+// carries the reasons it surfaced, most-overdue first.
 async function getDueTopics(req, res, next) {
   try {
+    const userId = req.userId;
     const now = Date.now();
-    const studied = await Topic.find({ userId: req.userId, lastStudiedAt: { $ne: null } });
-    const due = studied
-      .filter((t) => now >= dueMs(t))
-      .map((t) => ({
+    const [studied, recentMocks, recentChecks] = await Promise.all([
+      Topic.find({ userId, lastStudiedAt: { $ne: null } }),
+      FullMock.find({ userId, date: { $gte: new Date(now - MOCK_WINDOW_DAYS * DAY) } }),
+      MiniCheck.find({ userId, date: { $gte: new Date(now - CHECK_WINDOW_DAYS * DAY) } }),
+    ]);
+
+    // Topics flagged weak: linked to a low-scoring recent mock, or failed in a check.
+    const weak = new Set();
+    for (const m of recentMocks) {
+      const s = m.scores || {};
+      const avg = ((s.dsa || 0) + (s.concepts || 0) + (s.complexity || 0) + (s.architecture || 0)) / 4;
+      if (avg < WEAK_MOCK_THRESHOLD) (m.topicIds || []).forEach((id) => weak.add(String(id)));
+    }
+    for (const c of recentChecks) {
+      for (const item of c.items || []) {
+        if (item.correct === false && item.topicId) weak.add(String(item.topicId));
+      }
+    }
+
+    const byId = new Map(studied.map((t) => [String(t._id), t]));
+    const missing = [...weak].filter((id) => !byId.has(id));
+    if (missing.length) {
+      const more = await Topic.find({ userId, _id: { $in: missing } });
+      more.forEach((t) => byId.set(String(t._id), t));
+    }
+
+    const out = [];
+    for (const [id, t] of byId) {
+      const isOverdue = t.lastStudiedAt && now >= dueMs(t);
+      const isWeak = weak.has(id);
+      if (!isOverdue && !isWeak) continue;
+      const reasons = [];
+      if (isOverdue) reasons.push("overdue");
+      if (isWeak) reasons.push("weak");
+      out.push({
         topicId: t._id,
         name: t.name,
         phaseId: t.phaseId,
         lastStudiedAt: t.lastStudiedAt,
         revisionCount: t.revisionCount,
-        daysOverdue: Math.floor((now - dueMs(t)) / DAY),
-      }))
-      .sort((a, b) => b.daysOverdue - a.daysOverdue);
-    res.json(due);
+        daysOverdue: isOverdue ? Math.floor((now - dueMs(t)) / DAY) : 0,
+        reasons,
+      });
+    }
+    out.sort((a, b) => b.daysOverdue - a.daysOverdue);
+    res.json(out);
   } catch (err) {
     next(err);
   }

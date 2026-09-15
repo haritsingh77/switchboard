@@ -33,6 +33,7 @@ export interface DueForRevision {
   revisionCount: number;
   phaseId?: string;
   daysOverdue?: number;
+  reasons?: string[];
 }
 
 export interface Readiness {
