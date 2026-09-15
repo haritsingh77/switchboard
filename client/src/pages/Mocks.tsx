@@ -191,6 +191,21 @@ function Mocks() {
                 </div>
               )}
             {latest?.notes && <p className="breakdown-notes">{latest.notes}</p>}
+            {latest?.topicIds && latest.topicIds.length > 0 && (
+              <div className="breakdown-topics">
+                <span className="breakdown-topics-label">Topics exercised</span>
+                <div className="focus-chips">
+                  {latest.topicIds
+                    .map((id) => topics.find((t) => t._id === id))
+                    .filter((t): t is Topic => Boolean(t))
+                    .map((t) => (
+                      <Link key={t._id} to={`/topics/${t._id}`} className={`focus-chip focus-${t.status}`}>
+                        {t.name}
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            )}
           </section>
 
           {focus && (
@@ -259,6 +274,7 @@ function Mocks() {
 
       <Modal isOpen={showRecord} onClose={() => setShowRecord(false)} title="Record Mock Result">
         <RecordForm
+          topics={topics}
           onDone={() => setShowRecord(false)}
           onSaved={() => {
             setShowRecord(false);
@@ -288,7 +304,7 @@ function FeedbackList({ title, items, tone }: { title: string; items: string[]; 
   );
 }
 
-function RecordForm({ onDone, onSaved }: { onDone: () => void; onSaved: () => void }) {
+function RecordForm({ topics, onDone, onSaved }: { topics: Topic[]; onDone: () => void; onSaved: () => void }) {
   const [mode, setMode] = useState<"mini" | "full">("mini");
   const [date, setDate] = useState(todayInput());
   const [topicName, setTopicName] = useState("");
@@ -298,8 +314,14 @@ function RecordForm({ onDone, onSaved }: { onDone: () => void; onSaved: () => vo
   const [strengths, setStrengths] = useState("");
   const [gaps, setGaps] = useState("");
   const [actionItems, setActionItems] = useState("");
+  const [topicIds, setTopicIds] = useState<string[]>([]);
+  const [topicFilter, setTopicFilter] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
+
+  function toggleTopic(id: string) {
+    setTopicIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
 
   const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
 
@@ -332,6 +354,7 @@ function RecordForm({ onDone, onSaved }: { onDone: () => void; onSaved: () => vo
             date: new Date(date).toISOString(),
             scores,
             feedback: { strengths: lines(strengths), gaps: lines(gaps), actionItems: lines(actionItems) },
+            topicIds,
           }),
         });
       }
@@ -426,6 +449,32 @@ function RecordForm({ onDone, onSaved }: { onDone: () => void; onSaved: () => vo
             <span>Action items (one per line)</span>
             <textarea rows={2} value={actionItems} onChange={(e) => setActionItems(e.target.value)} />
           </label>
+
+          <div className="field">
+            <span className="record-topics-label">
+              Topics exercised {topicIds.length > 0 && <em>({topicIds.length} selected)</em>}
+            </span>
+            <input
+              type="text"
+              placeholder="Filter topics…"
+              value={topicFilter}
+              onChange={(e) => setTopicFilter(e.target.value)}
+            />
+            <div className="record-topic-picker">
+              {topics
+                .filter((t) => t.name.toLowerCase().includes(topicFilter.toLowerCase()))
+                .slice(0, 40)
+                .map((t) => {
+                  const on = topicIds.includes(t._id);
+                  return (
+                    <label key={t._id} className={`record-topic-opt ${on ? "on" : ""}`}>
+                      <input type="checkbox" checked={on} onChange={() => toggleTopic(t._id)} />
+                      <span>{t.name}</span>
+                    </label>
+                  );
+                })}
+            </div>
+          </div>
         </div>
       )}
 

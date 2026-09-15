@@ -56,7 +56,6 @@ export default function ScoreTrend({ fullMocks, miniChecks }: ScoreTrendProps) {
 
   const gridY = [0, 25, 50, 75, 100];
   const yToPx = (y: number) => PAD_T + (1 - y / 100) * (H - PAD_T - PAD_B);
-  const linePath = fullPts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
 
   // Moving average (window 3) over full mocks — smooths the trend line.
   const maWindow = 3;
@@ -85,20 +84,45 @@ export default function ScoreTrend({ fullMocks, miniChecks }: ScoreTrendProps) {
         ))}
 
         {maPath && <path d={maPath} fill="none" stroke="#6b6480" strokeWidth="1.5" strokeDasharray="4 4" />}
-        {fullPts.length > 1 && <path d={linePath} fill="none" stroke="#7c3aed" strokeWidth="2.5" />}
+
+        {/* Line drawn per-segment so declines (regressions) render red */}
+        {fullPts.slice(1).map((p, i) => {
+          const prev = fullPts[i];
+          const decline = p.v < prev.v;
+          return (
+            <line
+              key={`seg-${i}`}
+              x1={prev.x}
+              y1={prev.y}
+              x2={p.x}
+              y2={p.y}
+              stroke={decline ? "#f87171" : "#7c3aed"}
+              strokeWidth="2.5"
+            />
+          );
+        })}
 
         {miniPts.map((p, i) => (
           <circle key={`mini-${i}`} cx={p.x} cy={p.y} r="4" fill="#fbbf24" />
         ))}
 
-        {fullPts.map((p, i) => (
-          <g key={`full-${i}`}>
-            <circle cx={p.x} cy={p.y} r="5" fill="#7c3aed" stroke="#16131f" strokeWidth="2" />
-            <text x={p.x} y={p.y - 10} textAnchor="middle" className="score-trend-value">
-              {Math.round(p.v)}
-            </text>
-          </g>
-        ))}
+        {fullPts.map((p, i) => {
+          const decline = i > 0 && p.v < fullPts[i - 1].v;
+          return (
+            <g key={`full-${i}`}>
+              <circle cx={p.x} cy={p.y} r="5" fill={decline ? "#f87171" : "#7c3aed"} stroke="#16131f" strokeWidth="2" />
+              <text
+                x={p.x}
+                y={p.y - 10}
+                textAnchor="middle"
+                className={`score-trend-value${decline ? " decline" : ""}`}
+              >
+                {Math.round(p.v)}
+                {decline ? " ↓" : ""}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
