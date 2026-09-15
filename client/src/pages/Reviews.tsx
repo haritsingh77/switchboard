@@ -20,32 +20,28 @@ function formatDate(value: string) {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-function relativeTime(value: string) {
-  const days = Math.floor((Date.now() - new Date(value).getTime()) / DAY);
-  if (days <= 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 7) return `${days} days ago`;
-  const weeks = Math.floor(days / 7);
-  return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
-}
-
 function sessionsTotal(review: Review) {
   const c = review.stats?.sessionsCompleted;
   if (!c) return 0;
   return (c.dsa || 0) + (c.build || 0) + (c.other || 0);
 }
 
+function topicsCount(review: Review) {
+  return review.stats?.topicsCovered?.length ?? 0;
+}
+
 function Reviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showNew, setShowNew] = useState(false);
-  const [selected, setSelected] = useState<Review | null>(null);
 
   async function load() {
     try {
-      const data = await apiFetch("/reviews");
-      setReviews(data as Review[]);
+      const data = (await apiFetch("/reviews")) as Review[];
+      setReviews(data);
+      setSelectedId((prev) => (prev && data.some((r) => r._id === prev) ? prev : data[0]?._id ?? null));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load reviews");
     } finally {
@@ -57,13 +53,12 @@ function Reviews() {
     load();
   }, []);
 
+  const selected = reviews.find((r) => r._id === selectedId) ?? null;
+
   return (
     <div className="reviews">
       <div className="reviews-header">
-        <div>
-          <h1>Weekly Reviews</h1>
-          <p className="reviews-subtitle">Anchored to data, not just notes</p>
-        </div>
+        <h1>Weekly Reviews</h1>
         <button className="reviews-new-btn" onClick={() => setShowNew(true)}>
           + New Review
         </button>
@@ -76,87 +71,55 @@ function Reviews() {
         <p className="reviews-empty">No reviews yet. Write your first weekly review to anchor progress to data.</p>
       )}
 
-      <div className="reviews-list">
-        {reviews.map((review) => (
-          <article
-            key={review._id}
-            className="review-card"
-            role="button"
-            tabIndex={0}
-            onClick={() => setSelected(review)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") setSelected(review);
-            }}
-          >
-            <div className="review-card-head">
-              <h2 className="review-week">
-                Week of {formatDate(review.weekStart)} – {formatDate(review.weekEnd)}
-              </h2>
-              <span className="review-ago">{relativeTime(review.createdAt)}</span>
-            </div>
-            {review.body && <p className="review-body">{review.body}</p>}
-            <div className="review-stats">
-              <span>
-                <strong>{sessionsTotal(review)}</strong> Sessions
-              </span>
-              <span>
-                <strong>{review.stats?.topicsCovered?.length ?? 0}</strong> Topics
-              </span>
-              <span>
-                <strong>{review.stats?.applicationsSent ?? 0}</strong> Applications
-              </span>
-              {review.stats?.minutesStudied != null && (
-                <span>
-                  <strong>{Math.round((review.stats.minutesStudied / 60) * 10) / 10}</strong> Hours
+      {!loading && !error && reviews.length > 0 && (
+        <div className="reviews-layout">
+          <div className="reviews-list">
+            {reviews.map((review) => (
+              <button
+                key={review._id}
+                className={`review-item${review._id === selectedId ? " active" : ""}`}
+                onClick={() => setSelectedId(review._id)}
+              >
+                <span className="review-item-week">
+                  Week of {formatDate(review.weekStart)} - {formatDate(review.weekEnd)}
                 </span>
-              )}
-            </div>
-          </article>
-        ))}
-      </div>
+                <span className="review-item-sub">
+                  {sessionsTotal(review)} Sessions • {topicsCount(review)} Topics
+                </span>
+              </button>
+            ))}
+          </div>
 
-      <Modal
-        isOpen={selected !== null}
-        onClose={() => setSelected(null)}
-        title={
-          selected ? `Week of ${formatDate(selected.weekStart)} – ${formatDate(selected.weekEnd)}` : "Review"
-        }
-        size="lg"
-      >
-        {selected && (
-          <div className="review-detail">
-            <div className="review-detail-stats">
-              <span>
-                <strong>{sessionsTotal(selected)}</strong> Sessions
-              </span>
-              <span>
-                <strong>{selected.stats?.topicsCovered?.length ?? 0}</strong> Topics
-              </span>
-              <span>
-                <strong>{selected.stats?.applicationsSent ?? 0}</strong> Applications
-              </span>
-              {selected.stats?.minutesStudied != null && (
-                <span>
-                  <strong>{Math.round((selected.stats.minutesStudied / 60) * 10) / 10}</strong> Hours
-                </span>
-              )}
-            </div>
-            {selected.body && <p className="review-detail-body">{selected.body}</p>}
-            {selected.stats?.topicsCovered && selected.stats.topicsCovered.length > 0 && (
-              <div className="review-detail-topics">
-                <span className="review-detail-label">Topics covered</span>
-                <div className="review-detail-chips">
-                  {selected.stats.topicsCovered.map((t) => (
-                    <span key={t} className="review-chip">
-                      {t}
-                    </span>
-                  ))}
+          {selected && (
+            <div className="reviews-detail">
+              <div className="reviews-detail-head">
+                <h2>
+                  Week of {formatDate(selected.weekStart)} - {formatDate(selected.weekEnd)}
+                </h2>
+                <div className="reviews-detail-badges">
+                  <span className="review-badge">{sessionsTotal(selected)} Sessions</span>
+                  <span className="review-badge">{topicsCount(selected)} Topics</span>
                 </div>
               </div>
-            )}
-          </div>
-        )}
-      </Modal>
+
+              {selected.body && <p className="reviews-detail-body">{selected.body}</p>}
+
+              {selected.stats?.topicsCovered && selected.stats.topicsCovered.length > 0 && (
+                <div className="reviews-detail-topics">
+                  <span className="reviews-detail-label">Topics covered</span>
+                  <div className="reviews-detail-chips">
+                    {selected.stats.topicsCovered.map((t) => (
+                      <span key={t} className="review-chip">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <Modal isOpen={showNew} onClose={() => setShowNew(false)} title="New Weekly Review">
         <NewReviewForm
