@@ -421,6 +421,46 @@
   font-style: italic;
 }
 
+/* Track + Subject assignment row */
+.detail-assign {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.detail-assign-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 140px;
+  flex: 1;
+}
+
+.detail-assign-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8b849e;
+}
+
+.detail-assign-field select {
+  padding: 0.5rem 0.6rem;
+  background: #0f0d17;
+  border: 1px solid #2a2438;
+  border-radius: 8px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.detail-assign-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #6b6480;
+}
+
 .topic-row {
   display: flex;
   align-items: center;
@@ -523,6 +563,66 @@
 .detail-total {
   color: #a39db8;
   font-size: 0.82rem;
+}
+
+/* Session-level minutes-spent field */
+.detail-minutes {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #a39db8;
+  font-size: 0.82rem;
+}
+
+.detail-minutes-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8b849e;
+}
+
+.detail-minutes input {
+  width: 64px;
+  padding: 0.3rem 0.4rem;
+  background: #14111d;
+  border: 1px solid #2a2438;
+  border-radius: 6px;
+  color: #e9e4f5;
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.detail-minutes input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.detail-minutes-planned {
+  color: #8b849e;
+  font-size: 0.8rem;
+}
+
+.detail-minutes-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #6b6480;
+}
+
+.detail-minutes-sync {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #c4b5fd;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detail-minutes-sync:hover {
+  text-decoration: underline;
 }
 
 /* Planned-vs-actual + start timer */
@@ -856,6 +956,29 @@
 .plan-save:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* Unified dropdown polish across the Planner: dark native popup, a custom
+   chevron, and room for it so every select reads as an intentional control. */
+.detail-assign-field select,
+.drop-form-controls select,
+.drop-form-template,
+.plan-select,
+.plan-template {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color-scheme: dark;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b849e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 11px;
+  padding-right: 1.9rem;
+}
+
+/* Subject picker in the plan modal is a field, not the accent Template action */
+.plan-subject {
+  color: #e9e4f5;
 }
 
 @media (max-width: 640px) {

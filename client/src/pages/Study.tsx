@@ -25,6 +25,11 @@ function formatHours(minutes: number) {
   return `${Math.round(h * 10) / 10}h`;
 }
 
+// Total studied time = manual baseline + minutes rolled up from planner sessions.
+function studiedMinutes(s: Study) {
+  return (s.duration || 0) + (s.sessionMinutes || 0);
+}
+
 function StudyList() {
   const [subjects, setSubjects] = useState<Study[]>([]);
   const [error, setError] = useState("");
@@ -69,7 +74,7 @@ function StudyList() {
     }
   }
 
-  const maxEffort = useMemo(() => Math.max(60, ...subjects.map((s) => s.duration || 0)), [subjects]);
+  const maxEffort = useMemo(() => Math.max(60, ...subjects.map((s) => studiedMinutes(s))), [subjects]);
   const inProgress = subjects.filter((s) => s.status === "in-progress");
 
   return (
@@ -112,9 +117,9 @@ function StudyList() {
                     <div className="effort-bar-track">
                       <div
                         className="effort-bar effort-bar-effort"
-                        style={{ width: `${Math.round(((s.duration || 0) / maxEffort) * 100)}%` }}
+                        style={{ width: `${Math.round((studiedMinutes(s) / maxEffort) * 100)}%` }}
                       />
-                      <span className="effort-bar-val">{formatHours(s.duration || 0)}</span>
+                      <span className="effort-bar-val">{formatHours(studiedMinutes(s))}</span>
                     </div>
                     <div className="effort-bar-track">
                       <div
@@ -150,7 +155,7 @@ function StudyList() {
                       </button>
                     </div>
                     <div className="subject-meta">
-                      <span>{s.duration} min studied</span>
+                      <span>{studiedMinutes(s)} min studied</span>
                       <span>{s.topicsLeft} topics left</span>
                     </div>
                   </div>
@@ -177,7 +182,7 @@ function StudyList() {
                     </button>
                   </div>
                   <div className="subject-meta">
-                    <span>{formatHours(s.duration || 0)} studied</span>
+                    <span>{formatHours(studiedMinutes(s))} studied</span>
                     <span>{s.topicsLeft} topics left</span>
                   </div>
                   <span className={`subject-status subject-status-${s.status}`}>{STATUS_LABELS[s.status]}</span>

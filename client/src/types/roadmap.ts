@@ -56,6 +56,7 @@ export interface Session {
     date: string;
     slot: "morning" | "evening";
     track: "dsa" | "build" | "other";
+    subjectId?: string | null;
     status: "planned" | "completed" | "skipped";
     plannedMinutes?: number;
     minutesSpent: number;

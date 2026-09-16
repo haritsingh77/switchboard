@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { apiFetch } from "../api";
-import type { Session, Topic, SessionTopic } from "../types";
+import type { Session, Topic, SessionTopic, Study } from "../types";
 import Modal from "../components/Modal";
 import "./Planner.css";
 
@@ -53,6 +53,10 @@ type Draft = {
   notes: string;
   topics: SessionTopic[];
   focusRating: number;
+  minutesSpent: number;
+  // Once the user types a session total directly, stop auto-syncing it to the
+  // per-topic sum so their explicit figure is preserved.
+  minutesEdited: boolean;
 };
 
 type PlanRow = {
@@ -61,6 +65,7 @@ type PlanRow = {
   track: Session["track"];
   topics: string;
   plannedMinutes: number;
+  subjectId: string;
 };
 
 type RowIssue = "empty" | "duplicate" | "collision" | null;
@@ -72,7 +77,7 @@ const ISSUE_TEXT: Record<Exclude<RowIssue, null>, string> = {
 };
 
 function newPlanRow(): PlanRow {
-  return { dayIndex: 0, slot: "morning", track: "dsa", topics: "", plannedMinutes: 0 };
+  return { dayIndex: 0, slot: "morning", track: "dsa", topics: "", plannedMinutes: 0, subjectId: "" };
 }
 
 function parseTopics(input: string): SessionTopic[] {
@@ -85,7 +90,11 @@ function parseTopics(input: string): SessionTopic[] {
 
 function rowIsDefault(row: PlanRow) {
   return (
-    row.dayIndex === 0 && row.slot === "morning" && row.track === "dsa" && row.topics.trim() === ""
+    row.dayIndex === 0 &&
+    row.slot === "morning" &&
+    row.track === "dsa" &&
+    row.topics.trim() === "" &&
+    row.subjectId === ""
   );
 }
 
@@ -93,6 +102,7 @@ function Planner() {
   const [weekStart, setWeekStart] = useState(() => mondayOf(new Date()));
   const [sessions, setSessions] = useState<Session[]>([]);
   const [unscheduled, setUnscheduled] = useState<Topic[]>([]);
+  const [subjects, setSubjects] = useState<Study[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -119,6 +129,7 @@ function Planner() {
       slot: Session["slot"];
       track: Session["track"];
       plannedMinutes: number;
+      subjectId: string;
     } | null
   >(null);
   const [dropSaving, setDropSaving] = useState(false);
@@ -130,6 +141,15 @@ function Planner() {
       setUnscheduled(t as Topic[]);
     } catch {
       // Unscheduled strip is non-critical; leave it as-is on failure.
+    }
+  }, []);
+
+  const loadSubjects = useCallback(async () => {
+    try {
+      const s = await apiFetch("/study");
+      setSubjects(s as Study[]);
+    } catch {
+      // Subject picker is non-critical; leave it empty on failure.
     }
   }, []);
 
@@ -153,6 +173,10 @@ function Planner() {
   useEffect(() => {
     loadUnscheduled();
   }, [loadUnscheduled]);
+
+  useEffect(() => {
+    loadSubjects();
+  }, [loadSubjects]);
 
   const weekEnd = useMemo(() => {
     const d = new Date(weekStart);
@@ -183,10 +207,13 @@ function Planner() {
       return;
     }
     setExpandedId(session._id);
+    const topicSum = session.topics.reduce((sum, t) => sum + (t.minutesSpent || 0), 0);
     setDraft({
       notes: session.notes ?? "",
       topics: session.topics.map((t) => ({ ...t })),
       focusRating: session.focusRating ?? 0,
+      minutesSpent: session.minutesSpent || topicSum,
+      minutesEdited: !!session.minutesSpent && session.minutesSpent !== topicSum,
     });
     setSaveError("");
   }
@@ -207,6 +234,23 @@ function Planner() {
     }
   }
 
+  // Edit a session's track or subject in place. Persists immediately so it works
+  // for planned and completed sessions alike. Reassigning the subject re-rolls
+  // studied totals server-side, so we refresh the subject list afterwards.
+  async function patchSession(session: Session, patch: Partial<Pick<Session, "track" | "subjectId">>) {
+    setSaveError("");
+    try {
+      const updated = (await apiFetch(`/sessions/${session._id}`, {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      })) as Session;
+      setSessions((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
+      if ("subjectId" in patch) loadSubjects();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to update session");
+    }
+  }
+
   function toggleTopic(index: number) {
     setDraft((d) =>
       d ? { ...d, topics: d.topics.map((t, i) => (i === index ? { ...t, completed: !t.completed } : t)) } : d,
@@ -215,9 +259,21 @@ function Planner() {
 
   function setTopicMinutes(index: number, value: string) {
     const mins = Math.max(0, parseInt(value, 10) || 0);
-    setDraft((d) =>
-      d ? { ...d, topics: d.topics.map((t, i) => (i === index ? { ...t, minutesSpent: mins } : t)) } : d,
-    );
+    setDraft((d) => {
+      if (!d) return d;
+      const topics = d.topics.map((t, i) => (i === index ? { ...t, minutesSpent: mins } : t));
+      // Keep the session total in step with the per-topic sum until the user
+      // has typed a session total of their own.
+      const minutesSpent = d.minutesEdited
+        ? d.minutesSpent
+        : topics.reduce((sum, t) => sum + (t.minutesSpent || 0), 0);
+      return { ...d, topics, minutesSpent };
+    });
+  }
+
+  function setMinutesSpent(value: string) {
+    const mins = Math.max(0, parseInt(value, 10) || 0);
+    setDraft((d) => (d ? { ...d, minutesSpent: mins, minutesEdited: true } : d));
   }
 
   function setNotes(value: string) {
@@ -235,12 +291,14 @@ function Planner() {
           notes: draft.notes,
           topics: draft.topics,
           focusRating: draft.focusRating || undefined,
+          minutesSpent: draft.minutesSpent,
         }),
       })) as Session;
       setSessions((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
       setExpandedId(null);
       setDraft(null);
       loadUnscheduled();
+      loadSubjects();
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Failed to save session");
     } finally {
@@ -269,7 +327,7 @@ function Planner() {
   function onDayDrop(e: React.DragEvent, dayIndex: number) {
     e.preventDefault();
     if (!draggingTopic) return;
-    setDropForm({ dayIndex, id: draggingTopic.id, name: draggingTopic.name, slot: "morning", track: "dsa", plannedMinutes: 0 });
+    setDropForm({ dayIndex, id: draggingTopic.id, name: draggingTopic.name, slot: "morning", track: "dsa", plannedMinutes: 0, subjectId: "" });
     setDropError("");
     setDraggingTopic(null);
     setDragOverDay(null);
@@ -300,6 +358,7 @@ function Planner() {
                 date: date.toISOString(),
                 slot: dropForm.slot,
                 track: dropForm.track,
+                subjectId: dropForm.subjectId || null,
                 plannedMinutes: dropForm.plannedMinutes || 0,
                 topics: [{ topicId: dropForm.id, name: dropForm.name, completed: false, minutesSpent: 0 }],
               },
@@ -397,6 +456,7 @@ function Planner() {
         date: date.toISOString(),
         slot: row.slot,
         track: row.track,
+        subjectId: row.subjectId || null,
         plannedMinutes: row.plannedMinutes || 0,
         topics: parseTopics(row.topics),
       };
@@ -533,6 +593,19 @@ function Planner() {
                           <option value="build">Build</option>
                           <option value="other">Other</option>
                         </select>
+                        {!dropMatchesExisting && subjects.length > 0 && (
+                          <select
+                            value={dropForm.subjectId}
+                            onChange={(e) => setDropForm((f) => (f ? { ...f, subjectId: e.target.value } : f))}
+                          >
+                            <option value="">No subject</option>
+                            {subjects.map((sub) => (
+                              <option key={sub._id} value={sub._id}>
+                                {sub.subject}
+                              </option>
+                            ))}
+                          </select>
+                        )}
                         <button className="drop-form-confirm" disabled={dropSaving} onClick={confirmDrop}>
                           {dropSaving ? "Saving..." : dropMatchesExisting ? "Add to session" : "Schedule"}
                         </button>
@@ -594,6 +667,38 @@ function Planner() {
 
                         {expanded && draft && (
                           <div className="session-detail">
+                            <div className="detail-assign">
+                              <label className="detail-assign-field">
+                                <span className="detail-assign-label">Track</span>
+                                <select
+                                  value={session.track}
+                                  onChange={(e) => patchSession(session, { track: e.target.value as Session["track"] })}
+                                >
+                                  <option value="dsa">DSA</option>
+                                  <option value="build">Build</option>
+                                  <option value="other">Other</option>
+                                </select>
+                              </label>
+                              <label className="detail-assign-field">
+                                <span className="detail-assign-label">Subject</span>
+                                <select
+                                  value={session.subjectId ?? ""}
+                                  onChange={(e) => patchSession(session, { subjectId: e.target.value || null })}
+                                >
+                                  <option value="">— None —</option>
+                                  {subjects.map((sub) => (
+                                    <option key={sub._id} value={sub._id}>
+                                      {sub.subject}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                            </div>
+                            {session.subjectId && (
+                              <p className="detail-assign-hint">
+                                Minutes logged here roll up into this subject's studied total.
+                              </p>
+                            )}
                             {draft.topics.length === 0 && (
                               <p className="detail-hint">No topics on this session — add notes and mark it done.</p>
                             )}
@@ -638,11 +743,31 @@ function Planner() {
                                     Started {formatTime(session.startedAt)} · ~{elapsedMin(session.startedAt)}m
                                   </span>
                                 ))}
-                              <span className="detail-total">
-                                Actual {draftTotal}m
-                                {session.plannedMinutes ? ` / ${session.plannedMinutes}m planned` : ""}
-                              </span>
+                              <label className="detail-minutes">
+                                <span className="detail-minutes-label">Minutes spent</span>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={draft.minutesSpent}
+                                  onChange={(e) => setMinutesSpent(e.target.value)}
+                                />
+                                {session.plannedMinutes ? (
+                                  <span className="detail-minutes-planned">/ {session.plannedMinutes}m planned</span>
+                                ) : null}
+                              </label>
                             </div>
+                            {draft.topics.length > 0 && draft.minutesSpent !== draftTotal && (
+                              <p className="detail-minutes-hint">
+                                Per-topic total is {draftTotal}m.{" "}
+                                <button
+                                  type="button"
+                                  className="detail-minutes-sync"
+                                  onClick={() => setDraft((d) => (d ? { ...d, minutesSpent: draftTotal, minutesEdited: false } : d))}
+                                >
+                                  Use {draftTotal}m
+                                </button>
+                              </p>
+                            )}
 
                             <div className="detail-focus">
                               <span className="detail-focus-label">Focus</span>
@@ -708,6 +833,20 @@ function Planner() {
                     ))}
                   </select>
                   {row.plannedMinutes > 0 && <span className="plan-planned">Planned {row.plannedMinutes}m</span>}
+                  {subjects.length > 0 && (
+                    <select
+                      className="plan-template plan-subject"
+                      value={row.subjectId}
+                      onChange={(e) => updatePlanRow(i, { subjectId: e.target.value })}
+                    >
+                      <option value="">No subject</option>
+                      {subjects.map((sub) => (
+                        <option key={sub._id} value={sub._id}>
+                          {sub.subject}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div className="plan-fields">
                   <label className="plan-field plan-field-sm">
