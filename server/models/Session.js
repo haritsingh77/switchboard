@@ -6,6 +6,9 @@ const sessionSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     slot: { type: String, enum: ["morning", "evening"], required: true },
     track: { type: String, enum: ["dsa", "build", "other"], required: true },
+    // Optional link to a Study subject so a session's minutes roll up into that
+    // subject's studied total (see recomputeSubjectMinutes in the controller).
+    subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Study", default: null },
     status: { type: String, enum: ["planned", "completed", "skipped"], default: "planned" },
     plannedMinutes: { type: Number, default: 0 },
     minutesSpent: { type: Number, default: 0 },

@@ -1,5 +1,25 @@
+const mongoose = require("mongoose");
 const Session = require("../models/Session");
 const Topic = require("../models/Topic");
+const Study = require("../models/Study");
+
+// Recompute a Study subject's session-tracked minutes as the sum of minutesSpent
+// across every session linked to it. Called whenever a linked session's minutes
+// or subject assignment changes, so the subject's studied total stays accurate.
+async function recomputeSubjectMinutes(userId, subjectId) {
+  if (!subjectId) return;
+  const rows = await Session.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(String(userId)),
+        subjectId: new mongoose.Types.ObjectId(String(subjectId)),
+      },
+    },
+    { $group: { _id: "$subjectId", total: { $sum: "$minutesSpent" } } },
+  ]);
+  const total = rows.length ? rows[0].total : 0;
+  await Study.updateOne({ _id: subjectId, userId }, { $set: { sessionMinutes: total } });
+}
 
 async function getSessions(req, res, next) {
   try {
@@ -49,6 +69,7 @@ async function createSessionsBulk(req, res, next) {
       date: s.date,
       slot: s.slot,
       track: s.track,
+      subjectId: s.subjectId || null,
       topics: s.topics,
       notes: s.notes,
       plannedMinutes: s.plannedMinutes || 0,
@@ -83,7 +104,7 @@ async function completeSession(req, res, next) {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    const { notes, topics, focusRating } = req.body;
+    const { notes, topics, focusRating, minutesSpent } = req.body;
 
     session.status = "completed";
     if (notes !== undefined) session.notes = notes;
@@ -94,7 +115,11 @@ async function completeSession(req, res, next) {
     }
 
     const sessionTopics = session.topics || [];
-    session.minutesSpent = sessionTopics.reduce((sum, t) => sum + (t.minutesSpent || 0), 0);
+    const topicSum = sessionTopics.reduce((sum, t) => sum + (t.minutesSpent || 0), 0);
+    // Prefer an explicit session total when provided (lets a session log time
+    // without splitting it across topics); otherwise fall back to the topic sum.
+    const explicit = Number(minutesSpent);
+    session.minutesSpent = Number.isFinite(explicit) && explicit >= 0 ? explicit : topicSum;
     await session.save();
 
     const now = new Date();
@@ -109,6 +134,9 @@ async function completeSession(req, res, next) {
     );
     await Promise.all(topicUpdates);
 
+    // Roll the session's minutes up into its linked subject's studied total.
+    await recomputeSubjectMinutes(req.userId, session.subjectId);
+
     res.status(200).json(session);
   } catch (err) {
     next(err);
@@ -117,11 +145,18 @@ async function completeSession(req, res, next) {
 
 async function updateSession(req, res, next) {
   try {
-    const allowed = ["date", "slot", "track", "notes", "plannedMinutes", "startedAt", "status"];
+    const allowed = ["date", "slot", "track", "subjectId", "notes", "plannedMinutes", "startedAt", "status"];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
     }
+    // Empty-string subjectId means "unassign".
+    if (updates.subjectId === "") updates.subjectId = null;
+
+    // Capture the prior subject so a reassignment can refresh both subjects' totals.
+    const prev = await Session.findOne({ _id: req.params.id, userId: req.userId });
+    if (!prev) return res.status(404).json({ message: "Record not found" });
+
     let session;
     try {
       session = await Session.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, updates, {
@@ -135,6 +170,15 @@ async function updateSession(req, res, next) {
       throw err;
     }
     if (!session) return res.status(404).json({ message: "Record not found" });
+
+    // Keep affected subjects' studied totals in sync (old and/or new).
+    if ("subjectId" in updates) {
+      const before = prev.subjectId ? String(prev.subjectId) : null;
+      const after = session.subjectId ? String(session.subjectId) : null;
+      if (before && before !== after) await recomputeSubjectMinutes(req.userId, before);
+      if (after) await recomputeSubjectMinutes(req.userId, after);
+    }
+
     res.status(200).json(session);
   } catch (err) {
     next(err);
@@ -169,6 +213,7 @@ async function deleteSession(req, res, next) {
     const session = await Session.findOne({ _id: req.params.id, userId: req.userId });
     if (!session) return res.status(404).json({ error: "Record not found" });
 
+    const removedSubjectId = session.subjectId;
     await session.deleteOne();
 
     const topicIds = (session.topics || []).map((t) => t.topicId).filter(Boolean);
@@ -178,6 +223,9 @@ async function deleteSession(req, res, next) {
         { status: "unscheduled" },
       );
     }
+
+    // Drop the deleted session's minutes from its subject's studied total.
+    await recomputeSubjectMinutes(req.userId, removedSubjectId);
 
     res.status(200).json({ message: "Record deleted successfully" });
   } catch (err) {
