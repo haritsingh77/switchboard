@@ -1,0 +1,14 @@
+{
+  "name": "switchboard",
+  "private": true,
+  "description": "Root launcher: runs the API and client dev servers together.",
+  "scripts": {
+    "dev": "concurrently --names \"api,web\" --prefix-colors \"magenta,cyan\" --kill-others-on-fail \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
