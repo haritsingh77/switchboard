@@ -170,8 +170,11 @@ function Dashboard() {
     },
     {
       value: `${momentum.sessionsThisWeek.completed}/${momentum.sessionsThisWeek.planned}`,
-      unit: "sessions this week",
-      tone: "default",
+      unit:
+        momentum.sessionsThisWeek.skipped > 0
+          ? `sessions this week · ${momentum.sessionsThisWeek.skipped} skipped`
+          : "sessions this week",
+      tone: momentum.sessionsThisWeek.skipped > 0 ? "warning" : "default",
     },
   ];
 

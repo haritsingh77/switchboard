@@ -237,7 +237,10 @@ function Planner() {
   // Edit a session's track or subject in place. Persists immediately so it works
   // for planned and completed sessions alike. Reassigning the subject re-rolls
   // studied totals server-side, so we refresh the subject list afterwards.
-  async function patchSession(session: Session, patch: Partial<Pick<Session, "track" | "subjectId">>) {
+  async function patchSession(
+    session: Session,
+    patch: Partial<Pick<Session, "track" | "subjectId" | "status" | "date">>,
+  ) {
     setSaveError("");
     try {
       const updated = (await apiFetch(`/sessions/${session._id}`, {
@@ -246,9 +249,42 @@ function Planner() {
       })) as Session;
       setSessions((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
       if ("subjectId" in patch) loadSubjects();
+      // Skipping frees a session's topics back to the unscheduled strip.
+      if ("status" in patch) loadUnscheduled();
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Failed to update session");
     }
+  }
+
+  // A planned session whose day has already passed is "missed" — surfaced in the
+  // UI (derived, never auto-written) so the user can reschedule or skip it.
+  function isMissed(session: Session) {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    return session.status === "planned" && new Date(session.date) < start;
+  }
+
+  async function skipSession(session: Session) {
+    if (expandedId === session._id) {
+      setExpandedId(null);
+      setDraft(null);
+    }
+    await patchSession(session, { status: "skipped" });
+  }
+
+  async function unskipSession(session: Session) {
+    await patchSession(session, { status: "planned" });
+  }
+
+  // Move a missed session to today so it stays actionable. Collisions (a session
+  // already in that slot today) surface as the PATCH error.
+  async function rescheduleToToday(session: Session) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setExpandedId(null);
+    setDraft(null);
+    await patchSession(session, { date: today.toISOString() });
+    loadWeek();
   }
 
   function toggleTopic(index: number) {
@@ -624,8 +660,12 @@ function Planner() {
                   )}
                   {day.sessions.map((session) => {
                     const expanded = expandedId === session._id;
+                    const missed = isMissed(session);
                     return (
-                      <div key={session._id} className={`session-card session-card-${session.status}`}>
+                      <div
+                        key={session._id}
+                        className={`session-card session-card-${session.status}${missed ? " session-card-missed" : ""}`}
+                      >
                         <button
                           type="button"
                           className="session-head"
@@ -662,11 +702,29 @@ function Planner() {
                               </span>
                             ) : null}
                           </div>
-                          <span className={`status-pill status-pill-${session.status}`}>{session.status}</span>
+                          {missed ? (
+                            <span className="status-pill status-pill-missed">missed</span>
+                          ) : (
+                            <span className={`status-pill status-pill-${session.status}`}>{session.status}</span>
+                          )}
                         </button>
 
                         {expanded && draft && (
                           <div className="session-detail">
+                            {missed && (
+                              <div className="detail-missed">
+                                <span className="detail-missed-text">
+                                  This session's day has passed — reschedule it or mark it skipped.
+                                </span>
+                                <button
+                                  type="button"
+                                  className="detail-secondary"
+                                  onClick={() => rescheduleToToday(session)}
+                                >
+                                  Reschedule to today
+                                </button>
+                              </div>
+                            )}
                             <div className="detail-assign">
                               <label className="detail-assign-field">
                                 <span className="detail-assign-label">Track</span>
@@ -789,6 +847,24 @@ function Planner() {
                             {saveError && <p className="detail-error">{saveError}</p>}
 
                             <div className="detail-actions">
+                              {session.status === "planned" && (
+                                <button
+                                  type="button"
+                                  className="detail-secondary detail-skip"
+                                  onClick={() => skipSession(session)}
+                                >
+                                  Skip session
+                                </button>
+                              )}
+                              {session.status === "skipped" && (
+                                <button
+                                  type="button"
+                                  className="detail-secondary"
+                                  onClick={() => unskipSession(session)}
+                                >
+                                  Un-skip
+                                </button>
+                              )}
                               <button className="detail-save" disabled={saving} onClick={() => saveSession(session)}>
                                 {saving ? "Saving..." : "Save & Mark Complete"}
                               </button>

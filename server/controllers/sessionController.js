@@ -179,6 +179,25 @@ async function updateSession(req, res, next) {
       if (after) await recomputeSubjectMinutes(req.userId, after);
     }
 
+    // Skipping a session releases its topics back to the unscheduled pool so they
+    // can be rescheduled or carried forward; un-skipping re-claims them.
+    if (updates.status && updates.status !== prev.status) {
+      const topicIds = (session.topics || []).map((t) => t.topicId).filter(Boolean);
+      if (topicIds.length > 0) {
+        if (updates.status === "skipped") {
+          await Topic.updateMany(
+            { _id: { $in: topicIds }, userId: req.userId, status: "scheduled" },
+            { status: "unscheduled" },
+          );
+        } else if (prev.status === "skipped" && updates.status === "planned") {
+          await Topic.updateMany(
+            { _id: { $in: topicIds }, userId: req.userId, status: "unscheduled" },
+            { status: "scheduled" },
+          );
+        }
+      }
+    }
+
     res.status(200).json(session);
   } catch (err) {
     next(err);

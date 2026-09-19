@@ -334,6 +334,10 @@
   border-left-color: #6b6480;
 }
 
+.session-card-missed {
+  border-left-color: #fbbf24;
+}
+
 .session-body {
   display: flex;
   flex-direction: column;
@@ -404,6 +408,11 @@
 .status-pill-skipped {
   background: rgba(107, 100, 128, 0.2);
   color: #a39db8;
+}
+
+.status-pill-missed {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
 }
 
 .session-detail {
@@ -558,6 +567,54 @@
   align-items: center;
   justify-content: flex-end;
   gap: 1rem;
+}
+
+/* Skip / Un-skip sits opposite the primary save button */
+.detail-secondary {
+  padding: 0.5rem 0.9rem;
+  background: transparent;
+  border: 1px solid #2a2438;
+  border-radius: 8px;
+  color: #c4b5fd;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.detail-secondary:hover {
+  border-color: #7c3aed;
+}
+
+.detail-actions .detail-secondary {
+  margin-right: auto;
+}
+
+.detail-skip {
+  color: #fbbf24;
+}
+
+.detail-skip:hover {
+  border-color: #fbbf24;
+}
+
+/* Missed-session banner inside the detail */
+.detail-missed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.75rem;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 8px;
+}
+
+.detail-missed-text {
+  font-size: 0.82rem;
+  color: #fbbf24;
 }
 
 .detail-total {

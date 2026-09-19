@@ -23,7 +23,7 @@ export interface DashboardMomentum {
   daysSinceLastApplication: number | null;
   currentStreak: number;
   topicsOverdueCount: number;
-  sessionsThisWeek: { completed: number; planned: number };
+  sessionsThisWeek: { completed: number; skipped: number; planned: number };
 }
 
 export interface DueForRevision {

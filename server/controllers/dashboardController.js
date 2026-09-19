@@ -117,6 +117,7 @@ async function getDashboardData(req, res, next) {
 
     const sessionsThisWeek = {
       completed: weekSessions.filter((s) => s.status === "completed").length,
+      skipped: weekSessions.filter((s) => s.status === "skipped").length,
       planned: weekSessions.length,
     };
 
