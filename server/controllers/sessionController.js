@@ -145,7 +145,7 @@ async function completeSession(req, res, next) {
 
 async function updateSession(req, res, next) {
   try {
-    const allowed = ["date", "slot", "track", "subjectId", "notes", "plannedMinutes", "startedAt", "status"];
+    const allowed = ["date", "slot", "track", "subjectId", "notes", "plannedMinutes", "startedAt", "status", "topics"];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
@@ -177,6 +177,27 @@ async function updateSession(req, res, next) {
       const after = session.subjectId ? String(session.subjectId) : null;
       if (before && before !== after) await recomputeSubjectMinutes(req.userId, before);
       if (after) await recomputeSubjectMinutes(req.userId, after);
+    }
+
+    // Editing a session's topic list reconciles linked topics: newly added ones
+    // are marked scheduled, removed ones are released back to the unscheduled pool.
+    if ("topics" in updates) {
+      const prevIds = new Set((prev.topics || []).map((t) => t.topicId && String(t.topicId)).filter(Boolean));
+      const nextIds = new Set((session.topics || []).map((t) => t.topicId && String(t.topicId)).filter(Boolean));
+      const removed = [...prevIds].filter((id) => !nextIds.has(id));
+      const added = [...nextIds].filter((id) => !prevIds.has(id));
+      if (removed.length) {
+        await Topic.updateMany(
+          { _id: { $in: removed }, userId: req.userId, status: "scheduled" },
+          { status: "unscheduled" },
+        );
+      }
+      if (added.length) {
+        await Topic.updateMany(
+          { _id: { $in: added }, userId: req.userId, status: "unscheduled" },
+          { status: "scheduled" },
+        );
+      }
     }
 
     // Skipping a session releases its topics back to the unscheduled pool so they

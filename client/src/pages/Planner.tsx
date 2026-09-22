@@ -293,6 +293,44 @@ function Planner() {
     );
   }
 
+  function setTopicName(index: number, value: string) {
+    setDraft((d) =>
+      d ? { ...d, topics: d.topics.map((t, i) => (i === index ? { ...t, name: value } : t)) } : d,
+    );
+  }
+
+  function addTopic() {
+    setDraft((d) => (d ? { ...d, topics: [...d.topics, { name: "", completed: false, minutesSpent: 0 }] } : d));
+  }
+
+  function removeTopic(index: number) {
+    setDraft((d) => (d ? { ...d, topics: d.topics.filter((_, i) => i !== index) } : d));
+  }
+
+  // Persist topic/notes edits without completing the session (works for planned,
+  // skipped, or already-completed sessions). Blank topic rows are dropped.
+  async function saveTopics(session: Session) {
+    if (!draft) return;
+    setSaving(true);
+    setSaveError("");
+    try {
+      const topics = draft.topics
+        .map((t) => ({ ...t, name: t.name.trim() }))
+        .filter((t) => t.name.length > 0);
+      const updated = (await apiFetch(`/sessions/${session._id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ topics, notes: draft.notes }),
+      })) as Session;
+      setSessions((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
+      setDraft((d) => (d ? { ...d, topics: updated.topics.map((t) => ({ ...t })) } : d));
+      loadUnscheduled();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function setTopicMinutes(index: number, value: string) {
     const mins = Math.max(0, parseInt(value, 10) || 0);
     setDraft((d) => {
@@ -758,16 +796,24 @@ function Planner() {
                               </p>
                             )}
                             {draft.topics.length === 0 && (
-                              <p className="detail-hint">No topics on this session — add notes and mark it done.</p>
+                              <p className="detail-hint">No topics on this session yet — add one below.</p>
                             )}
                             {draft.topics.map((topic, i) => (
                               <div key={i} className="topic-row">
-                                <label className="topic-check">
-                                  <input type="checkbox" checked={topic.completed} onChange={() => toggleTopic(i)} />
-                                  <span className={topic.completed ? "topic-name done" : "topic-name"}>
-                                    {topic.name}
-                                  </span>
-                                </label>
+                                <input
+                                  type="checkbox"
+                                  className="topic-check-box"
+                                  checked={topic.completed}
+                                  onChange={() => toggleTopic(i)}
+                                  aria-label={`Mark ${topic.name || "topic"} done`}
+                                />
+                                <input
+                                  type="text"
+                                  className={`topic-name-input${topic.completed ? " done" : ""}`}
+                                  value={topic.name}
+                                  placeholder="Topic name"
+                                  onChange={(e) => setTopicName(i, e.target.value)}
+                                />
                                 <div className="topic-mins">
                                   <input
                                     type="number"
@@ -777,8 +823,20 @@ function Planner() {
                                   />
                                   <span>min</span>
                                 </div>
+                                <button
+                                  type="button"
+                                  className="topic-remove"
+                                  aria-label="Remove topic"
+                                  onClick={() => removeTopic(i)}
+                                >
+                                  ×
+                                </button>
                               </div>
                             ))}
+
+                            <button type="button" className="topic-add" onClick={addTopic}>
+                              + Add topic
+                            </button>
 
                             <label className="detail-notes">
                               <span>Notes</span>
@@ -865,6 +923,14 @@ function Planner() {
                                   Un-skip
                                 </button>
                               )}
+                              <button
+                                type="button"
+                                className="detail-secondary detail-save-changes"
+                                disabled={saving}
+                                onClick={() => saveTopics(session)}
+                              >
+                                Save changes
+                              </button>
                               <button className="detail-save" disabled={saving} onClick={() => saveSession(session)}>
                                 {saving ? "Saving..." : "Save & Mark Complete"}
                               </button>
