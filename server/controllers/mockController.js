@@ -12,11 +12,11 @@ async function getMiniChecks(req, res, next) {
 
 async function createMiniCheck(req, res, next) {
   try {
-    const { date, items } = req.body;
+    const { date, items, notes } = req.body;
     if (!date) {
       return res.status(400).json({ error: "date is required" });
     }
-    const miniCheck = new MiniCheck({ date, items, userId: req.userId });
+    const miniCheck = new MiniCheck({ date, items, notes, userId: req.userId });
     await miniCheck.save();
     res.status(201).json(miniCheck);
   } catch (err) {

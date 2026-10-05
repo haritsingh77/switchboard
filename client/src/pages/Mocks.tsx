@@ -269,6 +269,45 @@ function Mocks() {
               </div>
             )}
           </section>
+
+          <section className="mocks-card">
+            <div className="mocks-card-head">
+              <h2>Recent Mini-checks</h2>
+            </div>
+            {miniChecks.length === 0 ? (
+              <p className="mocks-empty">No mini-checks recorded yet.</p>
+            ) : (
+              <div className="minicheck-list">
+                {[...miniChecks]
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .map((mc) => {
+                    const total = mc.items?.length || 0;
+                    const correct = (mc.items || []).filter((i) => i.correct).length;
+                    return (
+                      <div key={mc._id} className="minicheck-row">
+                        <div className="minicheck-head">
+                          <span className="minicheck-date">{formatDate(mc.date)}</span>
+                          <span className="minicheck-score">
+                            {correct}/{total}
+                          </span>
+                        </div>
+                        {total > 0 && (
+                          <div className="minicheck-items">
+                            {mc.items.map((it, i) => (
+                              <span key={i} className={`minicheck-chip ${it.correct ? "ok" : "bad"}`}>
+                                {it.correct ? "✓" : "✗"} {it.topicName || "General"}
+                                <span className="minicheck-kind">{it.kind}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {mc.notes && <p className="minicheck-notes">{mc.notes}</p>}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </section>
         </>
       )}
 
@@ -314,6 +353,7 @@ function RecordForm({ topics, onDone, onSaved }: { topics: Topic[]; onDone: () =
   const [strengths, setStrengths] = useState("");
   const [gaps, setGaps] = useState("");
   const [actionItems, setActionItems] = useState("");
+  const [notes, setNotes] = useState("");
   const [topicIds, setTopicIds] = useState<string[]>([]);
   const [topicFilter, setTopicFilter] = useState("");
   const [saving, setSaving] = useState(false);
@@ -345,7 +385,7 @@ function RecordForm({ topics, onDone, onSaved }: { topics: Topic[]; onDone: () =
         ];
         await apiFetch("/mocks/mini", {
           method: "POST",
-          body: JSON.stringify({ date: new Date(date).toISOString(), items }),
+          body: JSON.stringify({ date: new Date(date).toISOString(), items, notes: notes.trim() || undefined }),
         });
       } else {
         await apiFetch("/mocks/full", {
@@ -414,6 +454,15 @@ function RecordForm({ topics, onDone, onSaved }: { topics: Topic[]; onDone: () =
                 onChange={(e) => setDefinitions(Math.max(0, Math.min(3, Number(e.target.value))))}
               />
             </div>
+          </div>
+          <div className="field">
+            <label>Notes (optional)</label>
+            <textarea
+              rows={3}
+              placeholder="What held, what didn't, and why"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </div>
         </>
       ) : (

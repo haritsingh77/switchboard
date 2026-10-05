@@ -32,6 +32,7 @@ export interface MiniCheckItem {
 export interface MiniCheck {
   _id: string;
   date: string;
+  notes?: string;
   items: MiniCheckItem[];
   createdAt: string;
   updatedAt: string;
